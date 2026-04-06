@@ -1,0 +1,1751 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rapports - Gestion de Trésorerie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-link.active { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; border-right: 3px solid #2563eb; }
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div x-data="reportsData()" x-init="init()" class="flex h-screen">
+        
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg flex flex-col no-print">
+            <div class="p-6 border-b">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-gray-900">Département Social</h1>
+                        <p class="text-xs text-gray-500">Gestion Financière</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="dashboard.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Tableau de Bord
+                </a>
+                <a href="membres.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Membres
+                </a>
+                <a href="departements.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Départements
+                </a>
+                <a href="cotisations.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Périodes & Cotisations
+                </a>
+                <a href="contributions.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Contributions
+                </a>
+                <a href="cultes.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Cultes & Dette Salle
+                </a>
+                <a href="depenses.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Dépenses
+                </a>
+                <a href="rapports.html" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Rapports
+                </a>
+            </nav>
+
+            <div class="p-4 border-t">
+                <button @click="AuthManager.signOut()" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition w-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm sticky top-0 z-10 no-print">
+                <div class="px-8 py-4 flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">Rapports Financiers</h2>
+                    <div class="flex gap-3">
+                        <select x-model="selectedPeriod" @change="loadReport()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
+                            <option value="">Sélectionner une période</option>
+                            <template x-for="period in periods" :key="period.id">
+                                <option :value="period.id" x-text="formatPeriod(period.month)"></option>
+                            </template>
+                        </select>
+                        <button @click="exportPDF()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                            Télécharger PDF
+                        </button>
+                        <button @click="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                            Imprimer
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="p-8" x-show="selectedPeriod">
+                <!-- Church Header -->
+                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-lg p-6 mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <!-- Logo Display -->
+                            <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center overflow-hidden">
+                                <template x-if="churchLogo">
+                                    <img :src="churchLogo" alt="Logo" class="w-full h-full object-cover">
+                                </template>
+                                <template x-if="!churchLogo">
+                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </template>
+                            </div>
+                            <div>
+                                <h1 class="text-3xl font-bold">Emerge in Christ</h1>
+                                <p class="text-blue-100">Département Social</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Logo Upload Button -->
+                        <div class="text-right">
+                            <input 
+                                type="file" 
+                                id="logoUpload" 
+                                x-ref="logoUpload"
+                                accept="image/*" 
+                                class="hidden"
+                                @change="handleLogoUpload"
+                            >
+                            <button 
+                                @click="$refs.logoUpload.click()" 
+                                class="bg-white/20 backdrop-blur hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                <span x-text="churchLogo ? 'Changer Logo' : 'Ajouter Logo'">Logo</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Report Title -->
+                    <div class="mt-4 pt-4 border-t border-white/20">
+                        <h2 class="text-xl font-bold">Rapport Financier</h2>
+                        <p class="text-blue-100 mt-1" x-text="reportData.period ? formatPeriod(reportData.period.month) : ''"></p>
+                        <p class="text-sm text-blue-200 mt-1">Généré le <span x-text="new Date().toLocaleDateString('fr-FR')"></span></p>
+                    </div>
+                </div>
+
+                <!-- Summary Cards - NOUVEAU FORMAT -->
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <!-- Revenus -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Total Contributions</p>
+                        <p class="text-xl font-bold text-green-600 mt-1" x-text="Utils.formatCurrency(reportData.totalContributions, 'USD')"></p>
+                        <p class="text-xs text-gray-400 mt-1" x-text="reportData.contributorsCount + ' membres'">0 membres</p>
+                    </div>
+                    
+                    <!-- Dette Salle (Prioritaire) -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-orange-500">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Dette Salle (Priorité)</p>
+                        <p class="text-xl font-bold text-orange-600 mt-1" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')"></p>
+                        <p class="text-xs text-orange-400 mt-1" x-text="reportData.cultsCount + ' cultes × 54 USD'">0 cultes</p>
+                    </div>
+                    
+                    <!-- Solde après salle -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Après Paiement Salle</p>
+                        <p class="text-xl font-bold mt-1" 
+                           :class="reportData.balanceAfterRoom >= 0 ? 'text-blue-600' : 'text-red-600'"
+                           x-text="Utils.formatCurrency(reportData.balanceAfterRoom, 'USD')"></p>
+                        <p class="text-xs mt-1" 
+                           :class="reportData.roomCovered ? 'text-green-500' : 'text-red-500'"
+                           x-text="reportData.roomCovered ? 'Salle couverte' : 'Déficit salle!'">Status</p>
+                    </div>
+                    
+                    <!-- Solde Net Final -->
+                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
+                        <p class="text-xs font-medium text-gray-500 uppercase">Solde Net Final</p>
+                        <p class="text-xl font-bold mt-1" 
+                           :class="reportData.netBalance >= 0 ? 'text-green-600' : 'text-red-600'"
+                           x-text="Utils.formatCurrency(reportData.netBalance, 'USD')"></p>
+                        <p class="text-xs text-gray-400 mt-1">Après toutes dépenses</p>
+                    </div>
+                </div>
+
+                <!-- Department Summary -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
+                        Résumé par Département
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-500">Département</th>
+                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Attendu</th>
+                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Perçu</th>
+                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Taux</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <template x-for="dept in reportData.departmentStats" :key="dept.id">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="py-3 px-4">
+                                            <div class="flex items-center gap-2">
+                                                <div class="w-2 h-2 rounded-full" :class="dept.rate >= 80 ? 'bg-green-500' : dept.rate >= 50 ? 'bg-yellow-500' : 'bg-red-500'"></div>
+                                                <span class="text-sm font-medium text-gray-900" x-text="dept.name"></span>
+                                            </div>
+                                        </td>
+                                        <td class="py-3 px-4 text-sm text-right text-gray-600" x-text="Utils.formatCurrency(dept.expected, 'USD')"></td>
+                                        <td class="py-3 px-4 text-sm text-right font-medium text-green-600" x-text="Utils.formatCurrency(dept.received, 'USD')"></td>
+                                        <td class="py-3 px-4 text-sm text-right">
+                                            <div class="flex items-center justify-end gap-2">
+                                                <div class="w-16 bg-gray-200 rounded-full h-2">
+                                                    <div class="h-2 rounded-full" :class="dept.rate >= 80 ? 'bg-green-500' : dept.rate >= 50 ? 'bg-yellow-500' : 'bg-red-500'" :style="'width: ' + dept.rate + '%'""></div>
+                                                </div>
+                                                <span class="px-2 py-1 rounded-full text-xs font-medium"
+                                                      :class="dept.rate >= 80 ? 'bg-green-100 text-green-700' : dept.rate >= 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'"
+                                                      x-text="dept.rate.toFixed(1) + '%'"></span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Department Details - Contributors, Non-Contributors, Debtors -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                    <!-- Contributors by Department -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Contributors par Département
+                        </h4>
+                        <div class="space-y-3 max-h-64 overflow-y-auto">
+                            <template x-for="dept in reportData.departmentDetails?.filter(d => d.contributors?.length > 0) || []" :key="dept.id">
+                                <div class="border-l-2 border-green-200 pl-3">
+                                    <p class="text-sm font-medium text-gray-900" x-text="dept.name"></p>
+                                    <div class="mt-1 space-y-1">
+                                        <template x-for="contributor in dept.contributors" :key="contributor.id">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="text-gray-600" x-text="contributor.name"></span>
+                                                <span class="text-green-600 font-medium" x-text="'$' + contributor.paid"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                            <div x-show="!reportData.departmentDetails?.some(d => d.contributors?.length > 0)" class="text-center text-gray-500 text-sm py-4">
+                                Aucun contributeur enregistré
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Non-Contributors by Department -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                            Non-Contributors
+                        </h4>
+                        <div class="space-y-3 max-h-64 overflow-y-auto">
+                            <template x-for="dept in reportData.departmentDetails?.filter(d => d.nonContributors?.length > 0) || []" :key="dept.id">
+                                <div class="border-l-2 border-yellow-200 pl-3">
+                                    <p class="text-sm font-medium text-gray-900" x-text="dept.name"></p>
+                                    <div class="mt-1 space-y-1">
+                                        <template x-for="member in dept.nonContributors" :key="member.id">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="text-gray-600" x-text="member.name"></span>
+                                                <span class="text-yellow-600 font-medium" x-text="'$' + member.expected"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                            <div x-show="!reportData.departmentDetails?.some(d => d.nonContributors?.length > 0)" class="text-center text-gray-500 text-sm py-4">
+                                Tous les membres ont contribué
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Debtors by Department -->
+                    <div class="bg-white rounded-xl shadow-sm p-6">
+                        <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Débiteurs
+                        </h4>
+                        <div class="space-y-3 max-h-64 overflow-y-auto">
+                            <template x-for="dept in reportData.departmentDetails?.filter(d => d.debtors?.length > 0) || []" :key="dept.id">
+                                <div class="border-l-2 border-red-200 pl-3">
+                                    <p class="text-sm font-medium text-gray-900" x-text="dept.name"></p>
+                                    <div class="mt-1 space-y-1">
+                                        <template x-for="debtor in dept.debtors" :key="debtor.id">
+                                            <div class="flex justify-between items-center text-xs">
+                                                <span class="text-gray-600" x-text="debtor.name"></span>
+                                                <span class="text-red-600 font-medium" x-text="'$' + debtor.remaining"></span>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
+                            <div x-show="!reportData.departmentDetails?.some(d => d.debtors?.length > 0)" class="text-center text-gray-500 text-sm py-4">
+                                Aucun débiteur
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Expenses Breakdown -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                        </svg>
+                        Dépenses par Catégorie
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Summary by Category -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Résumé par Catégorie</h4>
+                            <div class="space-y-2">
+                                <template x-for="expense in reportData.expenseBreakdown || []" :key="expense.category">
+                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-3 h-3 rounded-full" :class="getExpenseColor(expense.category)"></div>
+                                            <span class="text-sm font-medium text-gray-900" x-text="expense.category"></span>
+                                        </div>
+                                        <div class="text-right">
+                                            <p class="text-sm font-semibold" x-text="Utils.formatCurrency(expense.total, 'USD')"></p>
+                                            <p class="text-xs text-gray-500" x-text="expense.count + ' dépense(s)'"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+                        
+                        <!-- Detailed Expenses -->
+                        <div>
+                            <h4 class="text-sm font-medium text-gray-700 mb-3">Détail des Dépenses</h4>
+                            <div class="space-y-2 max-h-64 overflow-y-auto">
+                                <template x-for="expense in reportData.expenseDetails || []" :key="expense.id">
+                                    <div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
+                                        <div class="flex justify-between items-start">
+                                            <div class="flex-1">
+                                                <p class="text-sm font-medium text-gray-900" x-text="expense.description"></p>
+                                                <div class="flex items-center gap-2 mt-1">
+                                                    <span class="px-2 py-1 rounded-full text-xs font-medium" :class="getExpenseColor(expense.category) + ' ' + getExpenseTextColor(expense.category)" x-text="expense.category"></span>
+                                                    <span class="text-xs text-gray-500" x-text="new Date(expense.date).toLocaleDateString('fr-FR')"></span>
+                                                </div>
+                                            </div>
+                                            <p class="text-sm font-semibold text-red-600" x-text="Utils.formatCurrency(expense.amount_usd, 'USD')"></p>
+                                        </div>
+                                    </div>
+                                </template>
+                                <div x-show="!reportData.expenseDetails?.length" class="text-center text-gray-500 text-sm py-4">
+                                    Aucune dépense enregistrée
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Room Debt Detail -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Gestion de la Salle</h3>
+                    
+                    <!-- Configuration cultes -->
+                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="text-sm font-medium text-gray-700">Cultes par semaine:</span>
+                            <select x-model="cultsPerWeek" @change="recalculateExpected()" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
+                                <option value="1">1 culte/semaine</option>
+                                <option value="2">2 cultes/semaine (défaut)</option>
+                                <option value="3">3 cultes/semaine</option>
+                                <option value="4">4 cultes/semaine</option>
+                            </select>
+                        </div>
+                        <p class="text-xs text-gray-500">Coût par culte: <strong>54 USD</strong> | Total attendu: <strong x-text="reportData.expectedCultsCount + ' cultes'">0</strong></p>
+                    </div>
+
+                    <!-- Stats salle -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div class="text-center p-3 bg-orange-50 rounded-lg">
+                            <p class="text-xs text-gray-500">Cultes Réalisés</p>
+                            <p class="text-xl font-bold text-orange-600" x-text="reportData.cultsCount">0</p>
+                            <p class="text-xs text-orange-400">sur <span x-text="reportData.expectedCultsCount">0</span> attendus</p>
+                        </div>
+                        <div class="text-center p-3 bg-red-50 rounded-lg">
+                            <p class="text-xs text-gray-500">Dette Salle Totale</p>
+                            <p class="text-xl font-bold text-red-600" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')">$0</p>
+                            <p class="text-xs text-red-400">à payer en priorité</p>
+                        </div>
+                        <div class="text-center p-3 rounded-lg" :class="reportData.roomCovered ? 'bg-green-50' : 'bg-yellow-50'">
+                            <p class="text-xs text-gray-500">Couvert par Contributions</p>
+                            <p class="text-xl font-bold" :class="reportData.roomCovered ? 'text-green-600' : 'text-yellow-600'" 
+                               x-text="Utils.formatCurrency(Math.min(reportData.totalContributions, reportData.roomDebt), 'USD')">$0</p>
+                            <p class="text-xs" :class="reportData.roomCovered ? 'text-green-500' : 'text-yellow-500'"
+                               x-text="reportData.roomCovered ? '100% couvert' : (reportData.totalContributions/reportData.roomDebt*100).toFixed(0) + '% couvert'">0%</p>
+                        </div>
+                        <div class="text-center p-3 rounded-lg" :class="reportData.roomDeficit > 0 ? 'bg-red-50' : 'bg-green-50'">
+                            <p class="text-xs text-gray-500">Reste à Payer Salle</p>
+                            <p class="text-xl font-bold" :class="reportData.roomDeficit > 0 ? 'text-red-600' : 'text-green-600'"
+                               x-text="Utils.formatCurrency(reportData.roomDeficit, 'USD')">$0</p>
+                            <p class="text-xs" x-text="reportData.roomDeficit > 0 ? 'Déficit!' : 'Soldé'">Status</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Alert si déficit salle -->
+                    <div x-show="reportData.roomDeficit > 0" class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-3">
+                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                        </svg>
+                        <p class="text-sm text-red-700">
+                            <strong>Alerte:</strong> Les contributions ne couvrent pas la dette de salle. 
+                            Il manque <span x-text="Utils.formatCurrency(reportData.roomDeficit, 'USD')"></span> pour payer la salle.
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Late Payments -->
+                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Paiements en Retard</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-500">Membre</th>
+                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-500">Département</th>
+                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Montant Attendu</th>
+                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Montant Payé</th>
+                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Reste</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <template x-for="late in reportData.latePayments" :key="late.id">
+                                    <tr>
+                                        <td class="py-3 px-4 text-sm font-medium text-gray-900" x-text="late.member?.name"></td>
+                                        <td class="py-3 px-4 text-sm text-gray-600" x-text="late.department?.name"></td>
+                                        <td class="py-3 px-4 text-sm text-right" x-text="'$' + late.amount_expected"></td>
+                                        <td class="py-3 px-4 text-sm text-right text-green-600" x-text="'$' + (late.amount_paid || 0)"></td>
+                                        <td class="py-3 px-4 text-sm text-right text-red-600 font-medium" x-text="'$' + (late.amount_expected - (late.amount_paid || 0)).toFixed(2)"></td>
+                                    </tr>
+                                </template>
+                                <tr x-show="!reportData.latePayments?.length">
+                                    <td colspan="5" class="py-8 text-center text-gray-500">Aucun paiement en retard</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div x-show="!selectedPeriod" class="p-8 text-center text-gray-500">
+                <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                <p>Sélectionnez une période pour voir le rapport</p>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function reportsData() {
+            return {
+                periods: [],
+                selectedPeriod: '',
+                cultsPerWeek: 2, // Default: 2 cults per week
+                churchName: 'Emerge in Christ',
+                churchLogo: null, // For logo upload
+                reportData: {
+                    period: null,
+                    totalContributions: 0,
+                    contributorsCount: 0,
+                    totalExpenses: 0,
+                    roomDebt: 0,
+                    cultsCount: 0,
+                    expectedCultsCount: 0,
+                    roomCovered: false,
+                    roomDeficit: 0,
+                    balanceAfterRoom: 0,
+                    netBalance: 0,
+                    departmentStats: [],
+                    departmentDetails: [],
+                    allDepartments: [], // NEW: All departments with all members
+                    latePayments: []
+                },
+
+                async init() {
+                    initSupabase() // Ensure Supabase is initialized
+                    AuthManager.checkAuth()
+                    await this.loadPeriods()
+                },
+
+                async loadPeriods() {
+                    const supabase = getSupabase()
+                    if (!supabase) {
+                        console.error('Supabase not initialized in loadPeriods')
+                        return
+                    }
+
+                    try {
+                        const { data, error } = await supabase
+                            .from('periods')
+                            .select('*')
+                            .order('month', { ascending: false })
+
+                        if (error) {
+                            console.error('Error loading periods:', error)
+                            Utils.showToast('Erreur de chargement des périodes', 'error')
+                            return
+                        }
+
+                        this.periods = data || []
+                        
+                        // Auto-select current period
+                        const currentMonth = new Date().toISOString().slice(0, 7)
+                        const current = this.periods.find(p => p.month === currentMonth)
+                        if (current) {
+                            this.selectedPeriod = current.id
+                            await this.loadReport()
+                        }
+                    } catch (err) {
+                        console.error('Exception in loadPeriods:', err)
+                    }
+                },
+
+                formatPeriod(monthStr) {
+                    const [year, month] = monthStr.split('-')
+                    const date = new Date(parseInt(year), parseInt(month) - 1)
+                    return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
+                },
+
+                recalculateExpected() {
+                    if (this.reportData.period) {
+                        this.calculateExpectedCults()
+                        this.calculateBalances()
+                    }
+                },
+
+                calculateExpectedCults() {
+                    const period = this.reportData.period
+                    if (!period) return
+
+                    const start = new Date(period.start_date)
+                    const end = new Date(period.end_date)
+                    const days = Math.ceil((end - start) / (1000 * 60 * 60 * 24)) + 1
+                    const weeks = Math.ceil(days / 7)
+                    
+                    this.reportData.expectedCultsCount = weeks * parseInt(this.cultsPerWeek)
+                },
+
+                calculateBalances() {
+                    const contrib = this.reportData.totalContributions
+                    const room = this.reportData.roomDebt
+                    const expenses = this.reportData.totalExpenses
+
+                    // Room must be paid first (priority)
+                    this.reportData.roomCovered = contrib >= room
+                    this.reportData.roomDeficit = Math.max(0, room - contrib)
+                    
+                    // What's left after paying room
+                    this.reportData.balanceAfterRoom = contrib - room
+                    
+                    // Final balance after all expenses
+                    // If we don't have enough for room, we can't pay other expenses
+                    if (contrib < room) {
+                        this.reportData.netBalance = contrib - room // Negative = deficit
+                    } else {
+                        this.reportData.netBalance = contrib - room - expenses
+                    }
+                },
+
+                async loadReport() {
+                    if (!this.selectedPeriod) return
+
+                    const supabase = getSupabase()
+                    if (!supabase) {
+                        Utils.showToast('Erreur: Supabase non initialisé', 'error')
+                        return
+                    }
+
+                    try {
+                        // Get period details
+                        const { data: period, error: periodError } = await supabase
+                            .from('periods')
+                            .select('*')
+                            .eq('id', this.selectedPeriod)
+                            .single()
+
+                        if (periodError) throw periodError
+                        this.reportData.period = period
+
+                        // ============================================
+                        // NOUVELLE APPROCHE: Utiliser la vue monthly_report_complete
+                        // ============================================
+                        const { data: reportData, error: reportError } = await supabase
+                            .from('monthly_report_complete')
+                            .select('*')
+                            .eq('id', this.selectedPeriod)
+                            .single()
+
+                        if (reportError) {
+                            console.warn('Vue monthly_report_complete non disponible, utilisation fallback')
+                            // Fallback si la vue n'existe pas encore
+                            await this.loadReportFallback()
+                            return
+                        }
+
+                        // Remplir les données du rapport
+                        this.reportData.totalContributions = reportData.total_payments || 0
+                        this.reportData.contributorsCount = reportData.contributors_count || 0
+                        this.reportData.totalExpenses = reportData.total_expenses || 0
+                        this.reportData.roomDebt = reportData.room_debt || 0
+                        this.reportData.cultsCount = reportData.cults_count || 0
+                        this.reportData.expectedCultsCount = reportData.expected_cults_count || 0
+                        this.reportData.roomCovered = reportData.room_covered || false
+                        this.reportData.roomDeficit = reportData.room_deficit || 0
+                        this.reportData.balanceAfterRoom = reportData.balance_after_room || 0
+                        this.reportData.netBalance = reportData.net_balance || 0
+
+                        // Get contributions breakdown
+                        await this.loadContributionsBreakdown()
+
+                        // Get late payments
+                        await this.loadLatePayments()
+
+                        // Get department stats
+                        await this.loadDepartmentStats()
+
+                        // Get expenses breakdown
+                        await this.loadExpenses()
+                        
+                        console.log('Final Report Data:', this.reportData)
+
+                    } catch (error) {
+                        console.error('Error loading report:', error)
+                        Utils.showToast('Erreur de chargement du rapport: ' + error.message, 'error')
+                    }
+                },
+
+                // Fallback si la vue n'existe pas
+                async loadReportFallback() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    try {
+                        // Get ALL payments for this period (NOUVEAU: avec period_id)
+                        const { data: payments } = await supabase
+                            .from('payments')
+                            .select('amount_usd, is_room_payment')
+                            .eq('period_id', this.selectedPeriod)
+
+                        // Separate room and contribution payments
+                        let roomPayments = 0
+                        let contribPayments = 0
+
+                        payments?.forEach(p => {
+                            if (p.is_room_payment) {
+                                roomPayments += (p.amount_usd || 0)
+                            } else {
+                                contribPayments += (p.amount_usd || 0)
+                            }
+                        })
+
+                        this.reportData.totalContributions = (roomPayments + contribPayments)
+
+                        // Get room contributions separately
+                        const { data: roomContrib } = await supabase
+                            .from('room_contributions')
+                            .select('amount_usd')
+                            .eq('period_id', this.selectedPeriod)
+
+                        const roomContribTotal = roomContrib?.reduce((sum, r) => sum + (r.amount_usd || 0), 0) || 0
+
+                        // Get expenses
+                        const { data: expenses } = await supabase
+                            .from('expenses')
+                            .select('amount_usd')
+                            .eq('period_id', this.selectedPeriod)
+
+                        this.reportData.totalExpenses = expenses?.reduce((sum, e) => sum + (e.amount_usd || 0), 0) || 0
+
+                        // Get cults
+                        const { data: cults } = await supabase
+                            .from('cults')
+                            .select('cost')
+                            .eq('period_id', this.selectedPeriod)
+
+                        this.reportData.cultsCount = cults?.length || 0
+                        this.reportData.roomDebt = cults?.reduce((sum, c) => sum + (c.cost || 54), 0) || 0
+
+                        // Calculer les soldes
+                        this.calculateExpectedCults()
+                        this.calculateBalances()
+
+                        // Charger les détails
+                        await this.loadContributionsBreakdown()
+                        await this.loadLatePayments()
+                        await this.loadDepartmentStats()
+                        await this.loadExpenses()
+
+                    } catch (error) {
+                        console.error('Fallback error:', error)
+                    }
+                },
+
+                async loadContributionsBreakdown() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    // Get detailed contributions with member info
+                    const { data: contributions } = await supabase
+                        .from('expected_contributions')
+                        .select(`
+                            *,
+                            member:members(name, email),
+                            department:departments(name),
+                            payment_allocations(amount, payment:payments(date, note))
+                        `)
+                        .eq('period_id', this.selectedPeriod)
+
+                    this.reportData.contributorsCount = contributions?.filter(c => 
+                        c.payment_allocations?.length > 0
+                    ).length || 0
+                },
+
+                async loadLatePayments() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    const { data: contributions } = await supabase
+                        .from('expected_contributions')
+                        .select(`
+                            id,
+                            amount_expected,
+                            amount_paid,
+                            status,
+                            member:members(name, email),
+                            department:departments(name)
+                        `)
+                        .eq('period_id', this.selectedPeriod)
+                        .in('status', ['PENDING', 'PARTIAL'])
+
+                    this.reportData.latePayments = contributions?.map(c => ({
+                        ...c,
+                        remaining: c.amount_expected - (c.amount_paid || 0)
+                    })) || []
+                },
+
+                async loadDepartmentStats() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    try {
+                        // Load ALL departments
+                        const { data: allDepartments, error: deptError } = await supabase
+                            .from('departments')
+                            .select('*')
+                            .order('name')
+
+                        if (deptError) {
+                            console.error('Error loading departments:', deptError)
+                            return
+                        }
+
+                        // Load ALL expected contributions for this period (this tells us which members are in which departments)
+                        const { data: allContributions, error: contribError } = await supabase
+                            .from('expected_contributions')
+                            .select(`
+                                id,
+                                member_id,
+                                department_id,
+                                period_id,
+                                amount_expected,
+                                amount_paid,
+                                status,
+                                members!inner(id, name, email, phone, is_active),
+                                departments!inner(id, name, contribution_type)
+                            `)
+                            .eq('period_id', this.selectedPeriod)
+
+                        if (contribError) {
+                            console.error('Error loading contributions:', contribError)
+                            return
+                        }
+
+                        console.log('All contributions:', allContributions)
+                        console.log('All departments:', allDepartments)
+
+                        // Build complete department structure from contributions
+                        const allDepartmentsComplete = allDepartments?.map(dept => {
+                            // Get all contributions for this department
+                            const deptContributions = allContributions?.filter(c => c.department_id === dept.id) || []
+                            
+                            // Extract unique members from contributions
+                            const memberMap = new Map()
+                            deptContributions.forEach(c => {
+                                if (c.members && !memberMap.has(c.members.id)) {
+                                    memberMap.set(c.members.id, {
+                                        ...c.members,
+                                        contribution: c
+                                    })
+                                }
+                            })
+
+                            const deptMembers = Array.from(memberMap.values())
+
+                            // Categorize members
+                            const contributors = []
+                            const nonContributors = []
+                            const debtors = []
+                            let totalExpected = 0
+                            let totalPaid = 0
+
+                            deptMembers.forEach(memberData => {
+                                const contrib = memberData.contribution
+                                totalExpected += contrib.amount_expected
+                                totalPaid += contrib.amount_paid || 0
+
+                                const memberInfo = {
+                                    id: memberData.id,
+                                    name: memberData.name,
+                                    email: memberData.email,
+                                    phone: memberData.phone,
+                                    expected: contrib.amount_expected,
+                                    paid: contrib.amount_paid || 0,
+                                    remaining: contrib.amount_expected - (contrib.amount_paid || 0),
+                                    status: contrib.status
+                                }
+
+                                if (contrib.status === 'PAID') {
+                                    contributors.push(memberInfo)
+                                } else if (contrib.status === 'PENDING') {
+                                    nonContributors.push(memberInfo)
+                                } else if (contrib.status === 'PARTIAL') {
+                                    contributors.push(memberInfo)
+                                    debtors.push(memberInfo)
+                                }
+                            })
+
+                            return {
+                                id: dept.id,
+                                name: dept.name,
+                                contribution_type: dept.contribution_type,
+                                totalMembers: deptMembers.length,
+                                contributors,
+                                nonContributors,
+                                debtors,
+                                totalExpected,
+                                totalPaid,
+                                rate: totalExpected > 0 ? (totalPaid / totalExpected) * 100 : 0
+                            }
+                        }) || []
+
+                        this.reportData.allDepartments = allDepartmentsComplete
+
+                        // Also build the old structure for backward compatibility
+                        const deptStats = {}
+                        const deptDetails = {}
+                        
+                        allContributions?.forEach(c => {
+                            const deptId = c.department_id
+                            
+                            if (!deptStats[deptId]) {
+                                deptStats[deptId] = {
+                                    id: deptId,
+                                    name: c.departments?.name,
+                                    expected: 0,
+                                    received: 0
+                                }
+                            }
+                            deptStats[deptId].expected += c.amount_expected
+                            deptStats[deptId].received += (c.amount_paid || 0)
+                            
+                            if (!deptDetails[deptId]) {
+                                deptDetails[deptId] = {
+                                    id: deptId,
+                                    name: c.departments?.name,
+                                    contributors: [],
+                                    nonContributors: [],
+                                    debtors: []
+                                }
+                            }
+                            
+                            const memberData = {
+                                id: c.members?.id,
+                                name: c.members?.name,
+                                email: c.members?.email,
+                                expected: c.amount_expected,
+                                paid: c.amount_paid || 0,
+                                remaining: c.amount_expected - (c.amount_paid || 0),
+                                status: c.status
+                            }
+                            
+                            if (c.status === 'PAID') {
+                                deptDetails[deptId].contributors.push(memberData)
+                            } else if (c.status === 'PENDING') {
+                                deptDetails[deptId].nonContributors.push(memberData)
+                            } else if (c.status === 'PARTIAL') {
+                                deptDetails[deptId].contributors.push(memberData)
+                                deptDetails[deptId].debtors.push(memberData)
+                            }
+                        })
+
+                        this.reportData.departmentStats = Object.values(deptStats).map(d => ({
+                            ...d,
+                            rate: d.expected > 0 ? (d.received / d.expected) * 100 : 0
+                        }))
+                        
+                        this.reportData.departmentDetails = Object.values(deptDetails)
+                        
+                        console.log('All Departments:', this.reportData.allDepartments)
+                        console.log('Department Details:', this.reportData.departmentDetails)
+                        console.log('Department Stats:', this.reportData.departmentStats)
+                    } catch (error) {
+                        console.error('Error in loadDepartmentStats:', error)
+                        Utils.showToast('Erreur lors du chargement des départements', 'error')
+                    }
+                },
+
+                handleLogoUpload(event) {
+                    const file = event.target.files[0]
+                    if (!file) return
+
+                    // Validate file type
+                    if (!file.type.startsWith('image/')) {
+                        Utils.showToast('Veuillez sélectionner une image', 'error')
+                        return
+                    }
+
+                    // Validate file size (max 2MB)
+                    if (file.size > 2 * 1024 * 1024) {
+                        Utils.showToast('L\'image ne doit pas dépasser 2MB', 'error')
+                        return
+                    }
+
+                    // Read file as data URL
+                    const reader = new FileReader()
+                    reader.onload = (e) => {
+                        this.churchLogo = e.target.result
+                        Utils.showToast('Logo ajouté avec succès', 'success')
+                    }
+                    reader.onerror = () => {
+                        Utils.showToast('Erreur lors du chargement du logo', 'error')
+                    }
+                    reader.readAsDataURL(file)
+                },
+
+                async loadExpenses() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    // Get expenses for period
+                    const { data: expenses } = await supabase
+                        .from('expenses')
+                        .select('*')
+                        .eq('period_id', this.selectedPeriod)
+                        .order('date', { ascending: false })
+
+                    // Group by category
+                    const expenseBreakdown = {}
+                    const expenseDetails = expenses || []
+                    
+                    expenseDetails.forEach(expense => {
+                        const category = expense.category
+                        if (!expenseBreakdown[category]) {
+                            expenseBreakdown[category] = {
+                                category,
+                                total: 0,
+                                count: 0
+                            }
+                        }
+                        expenseBreakdown[category].total += expense.amount_usd
+                        expenseBreakdown[category].count += 1
+                    })
+
+                    this.reportData.expenseBreakdown = Object.values(expenseBreakdown)
+                    this.reportData.expenseDetails = expenseDetails
+                    
+                    console.log('Expense Details:', this.reportData.expenseDetails)
+                    console.log('Expense Breakdown:', this.reportData.expenseBreakdown)
+                },
+
+                getExpenseColor(category) {
+                    const colors = {
+                        'SALLE': 'bg-orange-500',
+                        'AIDE_SOCIALE': 'bg-green-500',
+                        'FRAIS_BANCAIRE': 'bg-yellow-500',
+                        'TRANSPORT': 'bg-blue-500',
+                        'MATERIEL': 'bg-purple-500',
+                        'AUTRE': 'bg-gray-500'
+                    }
+                    return colors[category] || 'bg-gray-500'
+                },
+
+                getExpenseTextColor(category) {
+                    const colors = {
+                        'SALLE': 'text-orange-700',
+                        'AIDE_SOCIALE': 'text-green-700',
+                        'FRAIS_BANCAIRE': 'text-yellow-700',
+                        'TRANSPORT': 'text-blue-700',
+                        'MATERIEL': 'text-purple-700',
+                        'AUTRE': 'text-gray-700'
+                    }
+                    return colors[category] || 'text-gray-700'
+                },
+
+                exportPDF() {
+                    if (!this.selectedPeriod) {
+                        Utils.showToast('Veuillez sélectionner une période', 'error')
+                        return
+                    }
+
+                    const periodName = this.formatPeriod(this.reportData.period?.month)
+                    
+                    Utils.exportToPDF(`Rapport-Mensuel-${this.reportData.period?.month}.pdf`, (doc) => {
+                        let y = 20
+                        const pageWidth = doc.internal.pageSize.getWidth()
+                        const margin = 15
+                        const contentWidth = pageWidth - margin * 2
+                        
+                        const checkPageBreak = (neededSpace) => {
+                            if (y + neededSpace > 270) {
+                                doc.addPage()
+                                y = 20
+                                return true
+                            }
+                            return false
+                        }
+
+                        // Helper function to add logo
+                        const addLogoToPDF = (x, y, size) => {
+                            if (this.churchLogo) {
+                                try {
+                                    doc.addImage(this.churchLogo, 'PNG', x, y, size, size)
+                                } catch (e) {
+                                    console.error('Error adding logo:', e)
+                                    // Fallback to placeholder
+                                    doc.setDrawColor(255, 255, 255)
+                                    doc.setFillColor(255, 255, 255, 0.2)
+                                    doc.circle(x + size/2, y + size/2, size/2, 'FD')
+                                }
+                            }
+                        }
+                        // ============================================
+                        // HEADER - Logo & Church Info
+                        // ============================================
+                        doc.setFillColor(59, 130, 246)
+                        doc.rect(0, 0, pageWidth, 40, 'F')
+                        
+                        // Church Logo
+                        if (this.churchLogo) {
+                            addLogoToPDF(15, 5, 30)
+                        } else {
+                            // Fallback placeholder
+                            doc.setDrawColor(255, 255, 255)
+                            doc.setLineWidth(0.5)
+                            doc.circle(30, 20, 12, 'S')
+                            doc.line(30, 10, 30, 30)
+                            doc.line(20, 20, 40, 20)
+                        }
+                        
+                        // Church Name
+                        doc.setFontSize(20)
+                        doc.setTextColor(255, 255, 255)
+                        doc.text('EGLISE EMERGE IN CHRIST', pageWidth / 2, 18, { align: 'center' })
+                        
+                        doc.setFontSize(11)
+                        doc.setTextColor(255, 255, 255, 0.9)
+                        doc.text('Département Social - Rapport Mensuel', pageWidth / 2, 28, { align: 'center' })
+                        
+                        doc.setFontSize(9)
+                        doc.setTextColor(255, 255, 255, 0.8)
+                        doc.text(`Période: ${periodName}`, pageWidth / 2, 35, { align: 'center' })
+                        
+                        y = 50
+                        
+                        // ============================================
+                        // Report Info Bar
+                        // ============================================
+                        doc.setFillColor(243, 244, 246)
+                        doc.rect(margin, y, contentWidth, 20, 'F')
+                        
+                        doc.setFontSize(11)
+                        doc.setTextColor(31, 41, 55)
+                        doc.text(`Période: ${periodName}`, margin + 5, y + 8)
+                        doc.text(`Généré le: ${new Date().toLocaleDateString('fr-FR')}`, pageWidth - margin - 5, y + 8, { align: 'right' })
+                        
+                        y += 30
+                        
+                        // ============================================
+                        // SECTION: RÉSUMÉ EXÉCUTIF
+                        // ============================================
+                        doc.setFontSize(14)
+                        doc.setTextColor(59, 130, 246)
+                        doc.text('RÉSUMÉ EXÉCUTIF', margin, y)
+                        y += 8
+                        
+                        doc.setDrawColor(59, 130, 246)
+                        doc.setLineWidth(0.5)
+                        doc.line(margin, y, margin + 50, y)
+                        y += 10
+                        
+                        // Executive Summary Cards
+                        const summaryData = [
+                            { label: 'Total Contributions', value: this.reportData.totalContributions, color: [34, 197, 94] },
+                            { label: 'Membres Contributeurs', value: this.reportData.contributorsCount, color: [59, 130, 246] },
+                            { label: 'Dette Salle', value: this.reportData.roomDebt, color: [251, 146, 60] },
+                            { label: 'Cultes du Mois', value: this.reportData.cultsCount, color: [139, 92, 246] }
+                        ]
+                        
+                        const cardWidth = (contentWidth - 15) / 4
+                        summaryData.forEach((item, idx) => {
+                            const cardX = margin + idx * (cardWidth + 5)
+                            
+                            doc.setFillColor(249, 250, 251)
+                            doc.roundedRect(cardX, y, cardWidth, 25, 2, 2, 'F')
+                            
+                            doc.setFontSize(8)
+                            doc.setTextColor(107, 114, 128)
+                            doc.text(item.label, cardX + 5, y + 8)
+                            
+                            doc.setFontSize(12)
+                            doc.setTextColor(...item.color)
+                            let displayValue
+                            if (item.label.includes('Contributions') && typeof item.value === 'number') {
+                                displayValue = Utils.formatCurrency(item.value, 'USD')
+                            } else if (item.label.includes('Cultes')) {
+                                displayValue = `${item.value} cultes`
+                            } else if (typeof item.value === 'number') {
+                                displayValue = Utils.formatCurrency(item.value, 'USD')
+                            } else {
+                                displayValue = String(item.value)
+                            }
+                            doc.text(String(displayValue), cardX + 5, y + 18)
+                        })
+                        
+                        y += 35
+                        
+                        // ============================================
+                        // SECTION: SOLDES ET INDICATEURS
+                        // ============================================
+                        checkPageBreak(60)
+                        
+                        doc.setFontSize(14)
+                        doc.setTextColor(59, 130, 246)
+                        doc.text('INDICATEURS FINANCIERS', margin, y)
+                        y += 8
+                        
+                        doc.setDrawColor(59, 130, 246)
+                        doc.line(margin, y, margin + 60, y)
+                        y += 10
+                        
+                        // Financial indicators table
+                        const recoveryRate = this.reportData.totalContributions > 0 
+                            ? ((this.reportData.totalContributions / (this.reportData.totalContributions + this.reportData.roomDeficit)) * 100).toFixed(1)
+                            : '0'
+                        
+                        const indicators = [
+                            { label: 'Total des Contributions', value: Utils.formatCurrency(this.reportData.totalContributions, 'USD'), positive: true },
+                            { label: 'Dette de Salle', value: Utils.formatCurrency(this.reportData.roomDebt, 'USD'), positive: false },
+                            { label: 'Solde après Salle', value: Utils.formatCurrency(this.reportData.balanceAfterRoom, 'USD'), positive: this.reportData.balanceAfterRoom >= 0 },
+                            { label: 'Autres Dépenses', value: Utils.formatCurrency(this.reportData.totalExpenses, 'USD'), positive: false },
+                            { label: 'Solde Net', value: Utils.formatCurrency(this.reportData.netBalance, 'USD'), positive: this.reportData.netBalance >= 0, bold: true },
+                            { label: 'Taux de Recouvrement', value: `${recoveryRate}%`, positive: parseFloat(recoveryRate) >= 80 }
+                        ]
+                        
+                        indicators.forEach((item, idx) => {
+                            checkPageBreak(8)
+                            doc.setFontSize(item.bold ? 12 : 10)
+                            
+                            // Label
+                            doc.setTextColor(55, 65, 81)
+                            doc.text(item.label, margin + 5, y)
+                            
+                            // Value with color
+                            if (item.positive) {
+                                doc.setTextColor(34, 197, 94)
+                            } else {
+                                doc.setTextColor(239, 68, 68)
+                            }
+                            
+                            doc.text(item.value, pageWidth - margin - 5, y, { align: 'right' })
+                            
+                            // Add separator line (except for last item)
+                            if (idx < indicators.length - 1) {
+                                y += 7
+                                doc.setDrawColor(229, 231, 235)
+                                doc.setLineWidth(0.2)
+                                doc.line(margin + 5, y, pageWidth - margin - 5, y)
+                            }
+                            y += 8
+                        })
+                        
+                        y += 5
+                        
+                        // Status Banner
+                        const roomStatus = this.reportData.roomCovered ? 'SALLE COUVERTE' : 'DÉFICIT SALLE'
+                        const statusColor = this.reportData.roomCovered ? [34, 197, 94] : [239, 68, 68]
+                        
+                        doc.setFillColor(...statusColor)
+                        doc.roundedRect(margin, y, contentWidth, 12, 1, 1, 'F')
+                        
+                        doc.setFontSize(10)
+                        doc.setTextColor(255, 255, 255)
+                        const statusText = this.reportData.roomCovered 
+                            ? `✓ ${roomStatus}` 
+                            : `⚠ ${roomStatus} (Manque: ${Utils.formatCurrency(this.reportData.roomDeficit, 'USD')})`
+                        doc.text(statusText, pageWidth / 2, y + 8, { align: 'center' })
+                        
+                        y += 20
+                        
+                        // ============================================
+                        // SECTION: DÉTAILS PAR DÉPARTEMENT
+                        // ============================================
+                        checkPageBreak(40)
+                        
+                        doc.setFontSize(14)
+                        doc.setTextColor(59, 130, 246)
+                        doc.text('RAPPORT PAR DÉPARTEMENT', margin, y)
+                        y += 8
+                        
+                        doc.setDrawColor(59, 130, 246)
+                        doc.line(margin, y, margin + 60, y)
+                        y += 10
+                        
+                        if (this.reportData.departmentDetails?.length > 0) {
+                            this.reportData.departmentDetails.forEach(dept => {
+                                checkPageBreak(50)
+                                
+                                // Department Header
+                                doc.setFillColor(59, 130, 246, 0.1)
+                                doc.roundedRect(margin, y, contentWidth, 10, 1, 1, 'F')
+                                
+                                doc.setFontSize(12)
+                                doc.setTextColor(59, 130, 246)
+                                doc.text(dept.name || 'Sans département', margin + 5, y + 7)
+                                
+                                // Department stats
+                                const deptTotal = (dept.contributors?.reduce((sum, c) => sum + c.paid, 0) || 0)
+                                const deptExpected = (dept.contributors?.reduce((sum, c) => sum + c.expected, 0) || 0) + 
+                                           (dept.nonContributors?.reduce((sum, m) => sum + m.expected, 0) || 0) + 
+                                           (dept.debtors?.reduce((sum, d) => sum + d.expected, 0) || 0)
+                                const deptRate = deptExpected > 0 ? ((deptTotal / deptExpected) * 100).toFixed(1) : 0
+                                
+                                doc.setFontSize(10)
+                                doc.setTextColor(107, 114, 128)
+                                doc.text(`Collecté: ${Utils.formatCurrency(deptTotal, 'USD')} / Attendu: ${Utils.formatCurrency(deptExpected, 'USD')} (${deptRate}%)`, pageWidth - margin - 5, y + 7, { align: 'right' })
+                                
+                                y += 14
+                                
+                                // Contributors (Paid)
+                                if (dept.contributors?.length > 0) {
+                                    doc.setFontSize(10)
+                                    doc.setTextColor(34, 197, 94)
+                                    doc.text(`✓ Ont Contribué (${dept.contributors.length}):`, margin, y)
+                                    y += 6
+                                    
+                                    dept.contributors.forEach(contrib => {
+                                        checkPageBreak(5)
+                                        doc.setFontSize(9)
+                                        doc.setTextColor(55, 65, 81)
+                                        doc.text(`   • ${contrib.name}`, margin + 5, y)
+                                        doc.text(Utils.formatCurrency(contrib.paid, 'USD'), margin + 90, y)
+                                        doc.setTextColor(34, 197, 94)
+                                        doc.text('PAYÉ', margin + 120, y)
+                                        y += 4
+                                    })
+                                    y += 3
+                                }
+                                
+                                // Non-Contributors (Not Paid)
+                                if (dept.nonContributors?.length > 0) {
+                                    checkPageBreak(10)
+                                    doc.setFontSize(10)
+                                    doc.setTextColor(251, 146, 60)
+                                    doc.text(`✗ Pas Encore Contribué (${dept.nonContributors.length}):`, margin, y)
+                                    y += 6
+                                    
+                                    dept.nonContributors.forEach(member => {
+                                        checkPageBreak(5)
+                                        doc.setFontSize(9)
+                                        doc.setTextColor(55, 65, 81)
+                                        doc.text(`   • ${member.name}`, margin + 5, y)
+                                        doc.setTextColor(251, 146, 60)
+                                        doc.text(Utils.formatCurrency(member.expected, 'USD'), margin + 90, y)
+                                        doc.setTextColor(251, 146, 60)
+                                        doc.text('EN ATTENTE', margin + 120, y)
+                                        y += 4
+                                    })
+                                    y += 3
+                                }
+                                
+                                // Debtors (Partial Payment)
+                                if (dept.debtors?.length > 0) {
+                                    checkPageBreak(10)
+                                    doc.setFontSize(10)
+                                    doc.setTextColor(239, 68, 68)
+                                    doc.text(`⚠ Dette en Cours (${dept.debtors.length}):`, margin, y)
+                                    y += 6
+                                    
+                                    dept.debtors.forEach(debtor => {
+                                        checkPageBreak(5)
+                                        doc.setFontSize(9)
+                                        doc.setTextColor(55, 65, 81)
+                                        doc.text(`   • ${debtor.name}`, margin + 5, y)
+                                        doc.setTextColor(239, 68, 68)
+                                        doc.text(`Payé: ${Utils.formatCurrency(debtor.paid, 'USD')} | Restant: ${Utils.formatCurrency(debtor.remaining, 'USD')}`, margin + 90, y)
+                                        y += 4
+                                    })
+                                    y += 3
+                                }
+                                
+                                // Department separator
+                                doc.setDrawColor(229, 231, 235)
+                                doc.setLineWidth(0.3)
+                                doc.line(margin, y, pageWidth - margin, y)
+                                y += 8
+                            })
+                        }
+                        
+                        // ============================================
+                        // SECTION: DÉPENSES
+                        // ============================================
+                        checkPageBreak(40)
+                        
+                        doc.setFontSize(14)
+                        doc.setTextColor(59, 130, 246)
+                        doc.text('DÉPENSES DU MOIS', margin, y)
+                        y += 8
+                        
+                        doc.setDrawColor(59, 130, 246)
+                        doc.line(margin, y, margin + 45, y)
+                        y += 10
+                        
+                        if (this.reportData.expenseDetails?.length > 0) {
+                            // Summary by category
+                            const expensesByCategory = {}
+                            this.reportData.expenseDetails.forEach(expense => {
+                                if (!expensesByCategory[expense.category]) {
+                                    expensesByCategory[expense.category] = { total: 0, items: [] }
+                                }
+                                expensesByCategory[expense.category].total += expense.amount_usd || 0
+                                expensesByCategory[expense.category].items.push(expense)
+                            })
+                            
+                            Object.entries(expensesByCategory).forEach(([category, data]) => {
+                                checkPageBreak(20)
+                                
+                                // Category header
+                                doc.setFontSize(11)
+                                const categoryColor = this.getExpensePDFColor(category)
+                                doc.setTextColor(...categoryColor)
+                                doc.text(`${category}: ${Utils.formatCurrency(data.total, 'USD')}`, margin, y)
+                                y += 5
+                                
+                                // List expenses
+                                data.items.forEach(expense => {
+                                    checkPageBreak(4)
+                                    doc.setFontSize(8)
+                                    doc.setTextColor(55, 65, 81)
+                                    const date = new Date(expense.date).toLocaleDateString('fr-FR')
+                                    doc.text(`   • ${expense.description} (${date})`, margin + 5, y)
+                                    doc.setTextColor(239, 68, 68)
+                                    doc.text(`-${Utils.formatCurrency(expense.amount_usd, 'USD')}`, pageWidth - margin - 5, y, { align: 'right' })
+                                    y += 4
+                                })
+                                y += 3
+                            })
+                        } else {
+                            doc.setFontSize(10)
+                            doc.setTextColor(107, 114, 128)
+                            doc.text('Aucune dépense enregistrée ce mois.', margin, y)
+                            y += 10
+                        }
+                        
+                        // ============================================
+                        // SECTION: PAIEMENTS EN RETARD
+                        // ============================================
+                        checkPageBreak(40)
+                        
+                        doc.setFontSize(14)
+                        doc.setTextColor(59, 130, 246)
+                        doc.text('PAIEMENTS EN RETARD', margin, y)
+                        y += 8
+                        
+                        doc.setDrawColor(59, 130, 246)
+                        doc.line(margin, y, margin + 55, y)
+                        y += 10
+                        
+                        if (this.reportData.latePayments?.length > 0) {
+                            // Summary
+                            const totalLate = this.reportData.latePayments.reduce((sum, lp) => sum + lp.remaining, 0)
+                            doc.setFontSize(10)
+                            doc.setTextColor(239, 68, 68)
+                            doc.text(`${this.reportData.latePayments.length} membre(s) en retard - Total: ${Utils.formatCurrency(totalLate, 'USD')}`, margin, y)
+                            y += 10
+                            
+                            // Table header
+                            doc.setFontSize(9)
+                            doc.setTextColor(255, 255, 255)
+                            doc.setFillColor(59, 130, 246)
+                            doc.rect(margin, y, contentWidth, 8, 'F')
+                            doc.text('Membre', margin + 3, y + 5)
+                            doc.text('Département', margin + 55, y + 5)
+                            doc.text('Reste', pageWidth - margin - 50, y + 5)
+                            doc.text('Statut', pageWidth - margin - 15, y + 5)
+                            y += 8
+                            
+                            // Late payments list
+                            let rowColor = false
+                            this.reportData.latePayments.forEach(late => {
+                                checkPageBreak(6)
+                                
+                                // Alternating row colors
+                                if (rowColor) {
+                                    doc.setFillColor(249, 250, 251)
+                                    doc.rect(margin, y, contentWidth, 6, 'F')
+                                }
+                                
+                                doc.setFontSize(8)
+                                doc.setTextColor(55, 65, 81)
+                                doc.text(late.member?.name || 'N/A', margin + 3, y + 4)
+                                doc.text(late.department?.name || 'N/A', margin + 55, y + 4)
+                                
+                                doc.setTextColor(239, 68, 68)
+                                doc.text(Utils.formatCurrency(late.remaining, 'USD'), pageWidth - margin - 50, y + 4)
+                                
+                                // Status badge
+                                const status = late.status === 'PARTIAL' ? 'Partiel' : 'En attente'
+                                doc.setTextColor(251, 146, 60)
+                                doc.text(status, pageWidth - margin - 15, y + 4)
+                                
+                                y += 6
+                                rowColor = !rowColor
+                            })
+                        } else {
+                            doc.setFontSize(10)
+                            doc.setTextColor(34, 197, 94)
+                            doc.text('✓ Aucun paiement en retard - Tous les membres sont à jour!', margin, y)
+                            y += 10
+                        }
+                        
+                        // ============================================
+                        // SECTION: BILAN GLOBAL
+                        // ============================================
+                        checkPageBreak(60)
+                        
+                        doc.setFontSize(14)
+                        doc.setTextColor(59, 130, 246)
+                        doc.text('BILAN GLOBAL', margin, y)
+                        y += 8
+                        
+                        doc.setDrawColor(59, 130, 246)
+                        doc.setLineWidth(0.5)
+                        doc.line(margin, y, margin + 35, y)
+                        y += 12
+                        
+                        // Detailed bilan table
+                        const roomCoverage = this.reportData.roomDebt > 0 
+                            ? Math.min(100, (this.reportData.totalContributions / this.reportData.roomDebt) * 100).toFixed(1)
+                            : 100
+                        
+                        const bilanItems = [
+                            { label: 'Total des Contributions', value: Utils.formatCurrency(this.reportData.totalContributions, 'USD'), isPositive: true },
+                            { label: `- Dont Salle`, value: Utils.formatCurrency(Math.min(this.reportData.totalContributions, this.reportData.roomDebt), 'USD'), isPositive: true, indent: true },
+                            { label: `- Disponible après salle`, value: Utils.formatCurrency(Math.max(0, this.reportData.balanceAfterRoom), 'USD'), isPositive: this.reportData.balanceAfterRoom >= 0, indent: true },
+                            { label: 'Dette de Salle Totale', value: Utils.formatCurrency(this.reportData.roomDebt, 'USD'), isPositive: this.reportData.roomDebt === 0 },
+                            { label: `Couverture Salle (${roomCoverage}%)`, value: this.reportData.roomCovered ? '✓ Complète' : `⚠ Manque ${Utils.formatCurrency(this.reportData.roomDeficit, 'USD')}`, isPositive: this.reportData.roomCovered },
+                            { label: 'Autres Dépenses', value: Utils.formatCurrency(this.reportData.totalExpenses, 'USD'), isPositive: this.reportData.totalExpenses === 0 },
+                            { label: '', value: '', isPositive: true, separator: true },
+                            { label: 'Solde Net Final', value: Utils.formatCurrency(this.reportData.netBalance, 'USD'), isPositive: this.reportData.netBalance >= 0, bold: true }
+                        ]
+                        
+                        bilanItems.forEach(item => {
+                            if (item.separator) {
+                                y += 3
+                                doc.setDrawColor(31, 41, 55)
+                                doc.setLineWidth(0.5)
+                                doc.line(margin, y, pageWidth - margin, y)
+                                y += 5
+                                return
+                            }
+                            
+                            doc.setFontSize(item.bold ? 12 : 10)
+                            
+                            // Label with optional indent
+                            const labelX = item.indent ? margin + 10 : margin
+                            doc.setTextColor(55, 65, 81)
+                            doc.text(item.label, labelX, y)
+                            
+                            // Value with color
+                            doc.setTextColor(...(item.isPositive ? [34, 197, 94] : [239, 68, 68]))
+                            doc.text(item.value, pageWidth - margin - 5, y, { align: 'right' })
+                            y += item.bold ? 8 : 6
+                        })
+                        
+                        y += 5
+                        doc.setDrawColor(31, 41, 55)
+                        doc.setLineWidth(0.5)
+                        doc.line(margin, y, pageWidth - margin, y)
+                        y += 8
+                        
+                        // Final balance
+                        doc.setFontSize(12)
+                        doc.setTextColor(31, 41, 55)
+                        doc.text('SOLDE FINAL:', margin, y)
+                        doc.setFontSize(14)
+                        doc.setTextColor(...(this.reportData.netBalance >= 0 ? [34, 197, 94] : [239, 68, 68]))
+                        doc.text(Utils.formatCurrency(this.reportData.netBalance, 'USD'), pageWidth - margin - 5, y, { align: 'right' })
+                        
+                        y += 15
+                        
+                        // ============================================
+                        // SECTION: LISTE COMPLÈTE DES DÉPARTEMENTS ET MEMBRES
+                        // ============================================
+                        checkPageBreak(30)
+                        
+                        doc.setFontSize(16)
+                        doc.setTextColor(59, 130, 246)
+                        doc.text('LISTE COMPLÈTE DES DÉPARTEMENTS', margin, y)
+                        y += 6
+                        
+                        doc.setFontSize(9)
+                        doc.setTextColor(107, 114, 128)
+                        doc.text('Détail de tous les ouvriers par département avec statut de contribution', margin, y)
+                        y += 10
+                        
+                        if (this.reportData.allDepartments?.length > 0) {
+                            this.reportData.allDepartments.forEach((dept, deptIndex) => {
+                                checkPageBreak(30)
+                                
+                                // Department Header
+                                const deptTotalMembers = dept.totalMembers
+                                const deptContributors = dept.contributors.length
+                                const deptNonContributors = dept.nonContributors.length
+                                const deptRate = dept.rate.toFixed(1)
+                                
+                                // Background for header
+                                doc.setFillColor(59, 130, 246)
+                                doc.roundedRect(margin, y, contentWidth, 12, 2, 2, 'F')
+                                
+                                doc.setFontSize(12)
+                                doc.setTextColor(255, 255, 255)
+                                doc.text(`${deptIndex + 1}. ${dept.name.toUpperCase()}`, margin + 5, y + 8)
+                                
+                                // Stats on the right
+                                doc.setFontSize(9)
+                                doc.text(`Membres: ${deptTotalMembers} | Contribué: ${deptContributors} | En attente: ${deptNonContributors} | Taux: ${deptRate}%`, 
+                                    pageWidth - margin - 5, y + 8, { align: 'right' })
+                                
+                                y += 15
+                                
+                                // Contributors (Paid)
+                                if (dept.contributors.length > 0) {
+                                    doc.setFontSize(10)
+                                    doc.setTextColor(34, 197, 94)
+                                    doc.text(`✓ Ont Contribué (${dept.contributors.length}):`, margin + 5, y)
+                                    y += 6
+                                    
+                                    dept.contributors.forEach((contrib, idx) => {
+                                        checkPageBreak(5)
+                                        
+                                        // Alternating background
+                                        if (idx % 2 === 0) {
+                                            doc.setFillColor(240, 253, 244)
+                                            doc.rect(margin + 5, y - 3, contentWidth - 10, 5, 'F')
+                                        }
+                                        
+                                        doc.setFontSize(9)
+                                        doc.setTextColor(55, 65, 81)
+                                        doc.text(`• ${contrib.name}`, margin + 8, y)
+                                        
+                                        // Amount paid
+                                        doc.setTextColor(34, 197, 94)
+                                        doc.text(`${Utils.formatCurrency(contrib.paid, 'USD')}`, margin + 80, y)
+                                        
+                                        // Status badge
+                                        if (contrib.status === 'PARTIAL') {
+                                            doc.setTextColor(251, 146, 60)
+                                            doc.text(`(Partiel - Reste: ${Utils.formatCurrency(contrib.remaining, 'USD')})`, margin + 105, y)
+                                        } else {
+                                            doc.setTextColor(34, 197, 94)
+                                            doc.text('(Payé)', margin + 105, y)
+                                        }
+                                        
+                                        y += 5
+                                    })
+                                    y += 3
+                                }
+                                
+                                // Non-Contributors (Not Paid)
+                                if (dept.nonContributors.length > 0) {
+                                    checkPageBreak(10)
+                                    doc.setFontSize(10)
+                                    doc.setTextColor(239, 68, 68)
+                                    doc.text(`✗ Pas Encore Contribué (${dept.nonContributors.length}):`, margin + 5, y)
+                                    y += 6
+                                    
+                                    dept.nonContributors.forEach((member, idx) => {
+                                        checkPageBreak(5)
+                                        
+                                        // Alternating background
+                                        if (idx % 2 === 0) {
+                                            doc.setFillColor(254, 242, 242)
+                                            doc.rect(margin + 5, y - 3, contentWidth - 10, 5, 'F')
+                                        }
+                                        
+                                        doc.setFontSize(9)
+                                        doc.setTextColor(55, 65, 81)
+                                        doc.text(`• ${member.name}`, margin + 8, y)
+                                        
+                                        doc.setTextColor(239, 68, 68)
+                                        doc.text('(En attente)', margin + 105, y)
+                                        
+                                        y += 5
+                                    })
+                                    y += 3
+                                }
+                                
+                                // Debtors (Partial Payment) - already shown in contributors
+                                if (dept.debtors.length > 0) {
+                                    checkPageBreak(10)
+                                    doc.setFontSize(9)
+                                    doc.setTextColor(251, 146, 60)
+                                    doc.text(`  ⚠ Dont ${dept.debtors.length} avec paiement partiel`, margin + 5, y)
+                                    y += 6
+                                }
+                                
+                                // Department separator
+                                if (deptIndex < this.reportData.allDepartments.length - 1) {
+                                    y += 2
+                                    doc.setDrawColor(200, 200, 200)
+                                    doc.setLineWidth(0.3)
+                                    doc.setLineDashPattern([2, 2])
+                                    doc.line(margin, y, pageWidth - margin, y)
+                                    doc.setLineDashPattern([])
+                                    y += 5
+                                }
+                            })
+                            
+                            // Summary
+                            y += 5
+                            checkPageBreak(20)
+                            doc.setFillColor(243, 244, 246)
+                            doc.roundedRect(margin, y, contentWidth, 15, 2, 2, 'F')
+                            
+                            const totalMembers = this.reportData.allDepartments.reduce((sum, d) => sum + d.totalMembers, 0)
+                            const totalContributors = this.reportData.allDepartments.reduce((sum, d) => sum + d.contributors.length, 0)
+                            const totalNonContributors = this.reportData.allDepartments.reduce((sum, d) => sum + d.nonContributors.length, 0)
+                            
+                            doc.setFontSize(10)
+                            doc.setTextColor(31, 41, 55)
+                            doc.text(`RÉSUMÉ GÉNÉRAL:`, margin + 5, y + 6)
+                            doc.text(`${totalMembers} membres au total | ${totalContributors} ont contribué | ${totalNonContributors} en attente`, pageWidth / 2, y + 6)
+                            
+                            const globalRate = totalMembers > 0 ? ((totalContributors / totalMembers) * 100).toFixed(1) : 0
+                            doc.setTextColor(59, 130, 246)
+                            doc.text(`Taux global: ${globalRate}%`, pageWidth - margin - 5, y + 6, { align: 'right' })
+                        } else {
+                            doc.setFontSize(10)
+                            doc.setTextColor(107, 114, 128)
+                            doc.text('Aucun département disponible.', margin, y)
+                            y += 10
+                        }
+                        
+                        // Signature section
+                        checkPageBreak(40)
+                        doc.setDrawColor(200, 200, 200)
+                        doc.setLineWidth(0.3)
+                        
+                        // Signature lines
+                        const signatureY = y + 20
+                        doc.line(margin + 10, signatureY, margin + 60, signatureY)
+                        doc.line(pageWidth - margin - 60, signatureY, pageWidth - margin - 10, signatureY)
+                        
+                        doc.setFontSize(8)
+                        doc.setTextColor(107, 114, 128)
+                        doc.text('Signature du Trésorier', margin + 35, signatureY + 5, { align: 'center' })
+                        doc.text('Signature du Chef de Département', pageWidth - margin - 35, signatureY + 5, { align: 'center' })
+                        
+                        y = signatureY + 15
+                        
+                        // ============================================
+                        // FOOTER
+                        // ============================================
+                        doc.setFontSize(8)
+                        doc.setTextColor(156, 163, 175)
+                        doc.text('Emerge in Christ - Département Social - Système de Gestion Financière', pageWidth / 2, 285, { align: 'center' })
+                        
+                        // Page numbers
+                        const pageCount = doc.internal.getNumberOfPages()
+                        for (let i = 1; i <= pageCount; i++) {
+                            doc.setPage(i)
+                            doc.setFontSize(8)
+                            doc.setTextColor(156, 163, 175)
+                            doc.text(
+                                `Page ${i} sur ${pageCount}`,
+                                pageWidth / 2,
+                                290,
+                                { align: 'center' }
+                            )
+                            doc.text(
+                                `Généré le ${new Date().toLocaleString('fr-FR')}`,
+                                pageWidth - margin,
+                                290,
+                                { align: 'right' }
+                            )
+                        }
+                    })
+                },
+                
+                getExpensePDFColor(category) {
+                    const colors = {
+                        'SALLE': [251, 146, 60],
+                        'AIDE_SOCIALE': [34, 197, 94],
+                        'FRAIS_BANCAIRE': [250, 204, 21],
+                        'TRANSPORT': [59, 130, 246],
+                        'MATERIEL': [139, 92, 246],
+                        'AUTRE': [107, 114, 128]
+                    }
+                    return colors[category] || [107, 114, 128]
+                }
+            }
+        }
+    </script>
+</body>
+</html>

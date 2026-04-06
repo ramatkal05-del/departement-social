@@ -1,0 +1,14 @@
+{
+  "name": "social-departement-EmergeinChrist",
+  "version": "2.0.0",
+  "description": "Gestion - Département Social",
+  "scripts": {
+    "start": "npx http-server . -p 8080 -o"
+  },
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.39.0"
+  }
+}

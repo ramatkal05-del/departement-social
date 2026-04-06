@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributions - Gestion de Trésorerie</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/utils.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .sidebar-link:hover { background-color: rgba(59, 130, 246, 0.1); }
+        .sidebar-link.active { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; border-right: 3px solid #2563eb; }
+    </style>
+</head>
+<body class="bg-gray-50">
+
+    <div x-data="paymentsData()" x-init="init()" class="flex h-screen">
+        
+        <!-- Sidebar -->
+        <aside class="w-64 bg-white shadow-lg flex flex-col">
+            <div class="p-6 border-b">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-gray-900">Département Social</h1>
+                        <p class="text-xs text-gray-500">Gestion Financière</p>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="flex-1 p-4 space-y-1">
+                <a href="dashboard.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
+                    Tableau de Bord
+                </a>
+                <a href="membres.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    Membres
+                </a>
+                <a href="departements.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Départements
+                </a>
+                <a href="cotisations.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    Périodes & Cotisations
+                </a>
+                <a href="contributions.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                    Contributions
+                </a>
+                <a href="cultes.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                    Cultes & Dette Salle
+                </a>
+                <a href="depenses.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Dépenses
+                </a>
+                <a href="rapports.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Rapports
+                </a>
+            </nav>
+
+            <div class="p-4 border-t">
+                <button @click="AuthManager.signOut()" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition w-full">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                    Déconnexion
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="flex-1 overflow-y-auto">
+            <header class="bg-white shadow-sm sticky top-0 z-10">
+                <div class="px-8 py-4 flex items-center justify-between">
+                    <h2 class="text-2xl font-bold text-gray-900">Enregistrement des Contributions</h2>
+                    <button @click="showModal = true; resetForm()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Nouveau Paiement
+                    </button>
+                </div>
+            </header>
+
+            <div class="p-8">
+                <!-- Payments Table -->
+                <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                    <table class="w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Date</th>
+                                <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Membre</th>
+                                <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Montant</th>
+                                <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Devise</th>
+                                <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Périodes payées</th>
+                                <th class="text-left py-3 px-6 text-sm font-medium text-gray-500">Note</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <template x-for="payment in payments" :key="payment.id">
+                                <tr class="hover:bg-gray-50">
+                                    <td class="py-4 px-6 text-sm text-gray-600" x-text="Utils.formatDate(payment.date)"></td>
+                                    <td class="py-4 px-6 text-sm font-medium text-gray-900" x-text="payment.member?.name || 'Inconnu'"></td>
+                                    <td class="py-4 px-6 text-sm font-medium text-green-600" x-text="Utils.formatCurrency(payment.amount_total, payment.currency)"></td>
+                                    <td class="py-4 px-6 text-sm text-gray-600" x-text="payment.currency"></td>
+                                    <td class="py-4 px-6">
+                                        <div class="flex flex-wrap gap-1">
+                                            <template x-for="alloc in payment.payment_allocations" :key="alloc.id">
+                                                <span class="px-2 py-1 bg-blue-100 text-blue-700 text-xs rounded-full" 
+                                                      x-text="alloc.expected_contribution?.period?.month"></span>
+                                            </template>
+                                        </div>
+                                    </td>
+                                    <td class="py-4 px-6 text-sm text-gray-500" x-text="payment.note || '-'"></td>
+                                </tr>
+                            </template>
+                            <tr x-show="payments.length === 0">
+                                <td colspan="6" class="py-8 text-center text-gray-500">Aucun paiement enregistré</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <!-- Payment Modal -->
+        <div x-show="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" x-transition>
+            <div class="bg-white rounded-xl p-6 w-full max-w-lg max-h-[90vh] overflow-y-auto" @click.away="showModal = false">
+                <h3 class="text-xl font-bold mb-4">Enregistrer un Paiement</h3>
+                
+                <form @submit.prevent="savePayment" class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Membre</label>
+                        <select x-model="form.member_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                            <option value="">Sélectionner un membre</option>
+                            <template x-for="member in members" :key="member.id">
+                                <option :value="member.id" x-text="member.name"></option>
+                            </template>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Montant</label>
+                            <input type="number" step="0.01" x-model="form.amount_total" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">Devise</label>
+                            <select x-model="form.currency" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                                <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
+                                <option value="GBP">GBP</option>
+                                <option value="TRY">TRY</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                        <input type="date" x-model="form.date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                    </div>
+
+                    <div x-show="pendingContributions.length > 0">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Répartition (cotisations en attente)</label>
+                        <div class="space-y-2 max-h-40 overflow-y-auto border border-gray-200 rounded-lg p-2">
+                            <template x-for="contrib in pendingContributions" :key="contrib.id">
+                                <div class="flex items-center justify-between p-2 hover:bg-gray-50 rounded">
+                                    <div class="flex items-center gap-2">
+                                        <input type="checkbox" :value="contrib.id" x-model="form.selectedContributions" class="rounded border-gray-300">
+                                        <span class="text-sm" x-text="contrib.period?.month + ' - ' + contrib.department?.name"></span>
+                                    </div>
+                                    <span class="text-sm font-medium" x-text="'$' + (contrib.amount_expected - (contrib.amount_paid || 0)).toFixed(2)"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Room Debt Info -->
+                    <div x-show="memberRoomDebt > 0" class="bg-orange-50 border border-orange-200 rounded-lg p-4 mb-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-orange-800">Dette Salle à payer (prioritaire)</p>
+                                <p class="text-xs text-orange-600 mt-1">Cette somme sera déduite en premier de votre paiement</p>
+                            </div>
+                            <p class="text-xl font-bold text-orange-600" x-text="'$' + memberRoomDebt.toFixed(2)"></p>
+                        </div>
+                    </div>
+
+                    <!-- Auto-allocation Info -->
+                    <div x-show="form.amount_total && parseFloat(form.amount_total) > 0" class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <h4 class="text-sm font-medium text-blue-800 mb-2">Répartition automatique du paiement:</h4>
+                        <div class="space-y-1 text-sm">
+                            <div class="flex justify-between">
+                                <span class="text-blue-700">1. Dette Salle (priorité):</span>
+                                <span class="font-medium" x-text="'$' + calculateRoomAllocation().toFixed(2)"></span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span class="text-blue-700">2. Cotisations sélectionnées:</span>
+                                <span class="font-medium" x-text="'$' + calculateContributionAllocation().toFixed(2)"></span>
+                            </div>
+                            <div class="flex justify-between border-t border-blue-200 pt-1 mt-1">
+                                <span class="text-blue-800 font-medium">Reste non alloué:</span>
+                                <span class="font-bold" x-text="'$' + calculateRemaining().toFixed(2)"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Note (optionnel)</label>
+                        <input type="text" x-model="form.note" placeholder="Ex: Paiement anticipé" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none">
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <input type="checkbox" x-model="form.is_advance" class="rounded border-gray-300">
+                        <label class="text-sm text-gray-700">Paiement anticipé (pour périodes futures)</label>
+                    </div>
+
+                    <div class="flex gap-3 pt-4">
+                        <button type="button" @click="showModal = false" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Annuler</button>
+                        <button type="submit" class="flex-1 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Enregistrer</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function paymentsData() {
+            return {
+                payments: [],
+                members: [],
+                pendingContributions: [],
+                memberRoomDebt: 0,
+                showModal: false,
+                form: {
+                    member_id: '',
+                    amount_total: '',
+                    currency: 'USD',
+                    date: new Date().toISOString().split('T')[0],
+                    note: '',
+                    is_advance: false,
+                    selectedContributions: [],
+                    room_allocation: 0
+                },
+
+                async init() {
+                    AuthManager.checkAuth()
+                    await this.loadMembers()
+                    await this.loadPayments()
+                },
+
+                async loadMembers() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    const { data } = await supabase
+                        .from('members')
+                        .select('*')
+                        .eq('is_active', true)
+                        .order('name')
+
+                    this.members = data || []
+                },
+
+                async loadPayments() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    const { data, error } = await supabase
+                        .from('payments')
+                        .select(`
+                            *,
+                            member:members(name),
+                            payment_allocations(
+                                id,
+                                amount,
+                                expected_contribution:expected_contributions(
+                                    period:periods(month)
+                                )
+                            )
+                        `)
+                        .order('date', { ascending: false })
+
+                    if (error) {
+                        Utils.showToast('Erreur de chargement', 'error')
+                        return
+                    }
+
+                    this.payments = data || []
+                },
+
+                async loadPendingContributions(memberId) {
+                    if (!memberId) {
+                        this.pendingContributions = []
+                        this.memberRoomDebt = 0
+                        return
+                    }
+
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    // Get pending contributions
+                    const { data: contributions } = await supabase
+                        .from('expected_contributions')
+                        .select(`
+                            *,
+                            period:periods(month, id),
+                            department:departments(name)
+                        `)
+                        .eq('member_id', memberId)
+                        .in('status', ['PENDING', 'PARTIAL'])
+
+                    this.pendingContributions = contributions || []
+
+                    // Calculate member's share of room debt for each period
+                    await this.calculateMemberRoomDebt(memberId, contributions)
+                },
+
+                async calculateMemberRoomDebt(memberId, contributions) {
+                    const supabase = getSupabase()
+                    if (!supabase || !contributions?.length) {
+                        this.memberRoomDebt = 0
+                        return
+                    }
+
+                    let totalRoomDebt = 0
+
+                    for (const contrib of contributions) {
+                        const periodId = contrib.period?.id
+                        if (!periodId) continue
+
+                        // Get total room debt for this period
+                        const { data: cults } = await supabase
+                            .from('cults')
+                            .select('cost')
+                            .eq('period_id', periodId)
+
+                        const periodRoomDebt = cults?.reduce((sum, c) => sum + (c.cost || 54), 0) || 0
+
+                        // Get total number of contributors for this period
+                        const { data: totalContributors } = await supabase
+                            .from('expected_contributions')
+                            .select('id', { count: 'exact' })
+                            .eq('period_id', periodId)
+
+                        const contributorCount = totalContributors?.length || 1
+
+                        // Member's share = total room debt / number of contributors
+                        const memberShare = periodRoomDebt / contributorCount
+                        totalRoomDebt += memberShare
+                    }
+
+                    this.memberRoomDebt = totalRoomDebt
+                },
+
+                calculateRoomAllocation() {
+                    const paymentAmount = parseFloat(this.form.amount_total) || 0
+                    // Room debt is paid first (priority)
+                    return Math.min(this.memberRoomDebt, paymentAmount)
+                },
+
+                calculateContributionAllocation() {
+                    const paymentAmount = parseFloat(this.form.amount_total) || 0
+                    const roomAllocation = this.calculateRoomAllocation()
+                    const remainingAfterRoom = paymentAmount - roomAllocation
+
+                    // Calculate total needed for selected contributions
+                    let contributionTotal = 0
+                    for (const contribId of this.form.selectedContributions) {
+                        const contrib = this.pendingContributions.find(c => c.id === contribId)
+                        if (contrib) {
+                            const remaining = contrib.amount_expected - (contrib.amount_paid || 0)
+                            contributionTotal += remaining
+                        }
+                    }
+
+                    return Math.min(contributionTotal, remainingAfterRoom)
+                },
+
+                calculateRemaining() {
+                    const paymentAmount = parseFloat(this.form.amount_total) || 0
+                    const roomAllocation = this.calculateRoomAllocation()
+                    const contributionAllocation = this.calculateContributionAllocation()
+                    return Math.max(0, paymentAmount - roomAllocation - contributionAllocation)
+                },
+
+                resetForm() {
+                    this.form = {
+                        member_id: '',
+                        amount_total: '',
+                        currency: 'USD',
+                        date: new Date().toISOString().split('T')[0],
+                        note: '',
+                        is_advance: false,
+                        selectedContributions: [],
+                        room_allocation: 0
+                    }
+                    this.pendingContributions = []
+                    this.memberRoomDebt = 0
+                },
+
+                async savePayment() {
+                    const supabase = getSupabase()
+                    if (!supabase) return
+
+                    const paymentAmount = parseFloat(this.form.amount_total)
+                    const amountUsd = Utils.convertToUSD(paymentAmount, this.form.currency)
+
+                    // Calculate allocations
+                    const roomAllocation = this.calculateRoomAllocation()
+                    const contributionAllocation = this.calculateContributionAllocation()
+
+                    // Check if payment covers at least room debt
+                    if (paymentAmount < roomAllocation && this.memberRoomDebt > 0) {
+                        if (!confirm(`Ce paiement (${Utils.formatCurrency(paymentAmount, this.form.currency)}) ne couvre pas la dette de salle (${Utils.formatCurrency(roomAllocation, this.form.currency)}). Voulez-vous continuer? Le solde restera dû.`)) {
+                            return
+                        }
+                    }
+
+                    // Get current period from pending contributions
+                    const currentPeriod = this.pendingContributions[0]?.period
+                    const periodId = currentPeriod?.id
+
+                    if (!periodId && !this.form.is_advance) {
+                        Utils.showToast('Erreur: Aucune période active trouvée', 'error')
+                        return
+                    }
+
+                    // Create payment WITH period_id (NOUVEAU)
+                    const { data: payment, error: paymentError } = await supabase
+                        .from('payments')
+                        .insert({
+                            member_id: this.form.member_id,
+                            amount_total: paymentAmount,
+                            currency: this.form.currency,
+                            amount_usd: amountUsd,
+                            date: this.form.date,
+                            period_id: periodId,  // ← NOUVEAU: Lien avec la période
+                            is_advance: this.form.is_advance || false,
+                            is_room_payment: roomAllocation > 0,  // ← NOUVEAU: Flag salle
+                            note: this.form.note
+                        })
+                        .select()
+
+                    if (paymentError) {
+                        Utils.showToast('Erreur de création: ' + paymentError.message, 'error')
+                        return
+                    }
+
+                    const paymentId = payment[0].id
+                    let remainingAmount = paymentAmount
+
+                    // 1. FIRST: Allocate to room debt (priority) using room_contributions table
+                    if (roomAllocation > 0 && periodId) {
+                        const { error: roomError } = await supabase.from('room_contributions').insert({
+                            member_id: this.form.member_id,
+                            period_id: periodId,
+                            payment_id: paymentId,
+                            amount: roomAllocation,
+                            currency: this.form.currency,
+                            amount_usd: Utils.convertToUSD(roomAllocation, this.form.currency),
+                            date: this.form.date,
+                            description: `Contribution dette salle - ${this.form.note || 'Paiement mensuel'}`
+                        })
+
+                        if (roomError) {
+                            console.error('Erreur room_contributions:', roomError)
+                            Utils.showToast('Erreur lors de l\'enregistrement de la contribution salle', 'warning')
+                        }
+                        remainingAmount -= roomAllocation
+                    }
+
+                    // 2. SECOND: Allocate to selected contributions
+                    if (this.form.selectedContributions.length > 0 && remainingAmount > 0) {
+                        const { data: contributions } = await supabase
+                            .from('expected_contributions')
+                            .select('*')
+                            .in('id', this.form.selectedContributions)
+
+                        const allocationData = []
+                        for (const contrib of contributions) {
+                            const remaining = contrib.amount_expected - (contrib.amount_paid || 0)
+                            const amount = Math.min(remaining, remainingAmount)
+                            
+                            if (amount > 0) {
+                                allocationData.push({
+                                    payment_id: paymentId,
+                                    expected_contribution_id: contrib.id,
+                                    amount: amount
+                                })
+                                remainingAmount -= amount
+                                
+                                // Update contribution status
+                                const newPaid = (contrib.amount_paid || 0) + amount
+                                const status = newPaid >= contrib.amount_expected ? 'PAID' : 'PARTIAL'
+                                
+                                await supabase
+                                    .from('expected_contributions')
+                                    .update({ amount_paid: newPaid, status })
+                                    .eq('id', contrib.id)
+                            }
+                        }
+
+                        if (allocationData.length > 0) {
+                            await supabase.from('payment_allocations').insert(allocationData)
+                        }
+                    }
+
+                    // 3. If there's still remaining amount, it stays as credit/advance
+                    if (remainingAmount > 0) {
+                        Utils.showToast(`Paiement enregistré. ${Utils.formatCurrency(remainingAmount, this.form.currency)} reste en crédit pour paiements futurs.`, 'success')
+                    } else {
+                        Utils.showToast('Paiement enregistré avec allocation automatique')
+                    }
+
+                    this.showModal = false
+                    await this.loadPayments()
+                    this.resetForm()
+                }
+            }
+        }
+    </script>
+</body>
+</html>
