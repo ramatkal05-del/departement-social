@@ -125,25 +125,25 @@
                         <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Dette Salle</p>
                         <p class="text-2xl font-black text-amber-600 mt-1" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')"></p>
                         <div class="mt-4 flex items-center gap-2 text-xs font-bold text-amber-500">
-                             <span x-text="reportData.cultsCount + ' cultes rÃ©alisÃ©s'"></span>
+                             <span x-text="reportData.cultsCount + ' cultes réalisés'"></span>
                         </div>
                     </div>
                     
-                    <!-- Solde AprÃ¨s Salle -->
+                    <!-- Solde Après Salle -->
                     <div class="card-premium p-6 border-l-4 border-blue-500 hover:scale-[1.02] transition-transform">
                         <div class="flex justify-between items-start mb-4">
                             <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
                             </div>
                         </div>
-                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">AprÃ¨s Salle</p>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Après Salle</p>
                         <p class="text-2xl font-black mt-1" 
                            :class="reportData.balanceAfterRoom >= 0 ? 'text-blue-600' : 'text-rose-600'"
                            x-text="Utils.formatCurrency(reportData.balanceAfterRoom, 'USD')"></p>
                         <div class="mt-4">
                             <span class="text-xs font-bold px-3 py-1 rounded-full"
                                   :class="reportData.roomCovered ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
-                                  x-text="reportData.roomCovered ? 'Salle couverte' : 'DÃ©ficit salle!'"></span>
+                                  x-text="reportData.roomCovered ? 'Salle couverte' : 'Déficit salle!'"></span>
                         </div>
                     </div>
                     
@@ -171,16 +171,16 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
                                 </svg>
                             </div>
-                            RÃ©sumÃ© par DÃ©partement
+                            Résumé par Département
                         </h3>
                     </div>
                     <div class="overflow-x-auto">
                         <table class="w-full text-left">
                             <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-black tracking-widest">
                                 <tr>
-                                    <th class="py-4 px-6">DÃ©partement</th>
+                                    <th class="py-4 px-6">Département</th>
                                     <th class="py-4 px-6 text-right">Attendu</th>
-                                    <th class="py-4 px-6 text-right">PerÃ§u</th>
+                                    <th class="py-4 px-6 text-right">Perçu</th>
                                     <th class="py-4 px-6 text-right">Performance</th>
                                 </tr>
                             </thead>
@@ -271,7 +271,7 @@
                             </template>
                             <div x-show="!reportData.departmentDetails?.some(d => d.nonContributors?.length > 0)" class="h-full flex flex-col items-center justify-center text-slate-400">
                                 <svg class="w-12 h-12 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
-                                <p class="text-sm font-bold">Tout est rÃ©glÃ©</p>
+                                <p class="text-sm font-bold">Tout est réglé</p>
                             </div>
                         </div>
                     </div>
@@ -317,10 +317,10 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
                                 </svg>
                             </div>
-                            Analyse des DÃ©penses
+                            Analyse des Dépenses
                         </h3>
                         <div class="flex items-center gap-4 p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
-                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Total DÃ©pensÃ©</p>
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Total Dépensé</p>
                             <p class="text-xl font-black text-rose-600" x-text="Utils.formatCurrency(reportData.totalExpenses, 'USD')"></p>
                         </div>
                     </div>
@@ -328,7 +328,7 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
                         <!-- Summary by Category -->
                         <div class="space-y-6">
-                            <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">RÃ©sumÃ© par CatÃ©gorie</h4>
+                            <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Résumé par Catégorie</h4>
                             <div class="space-y-3">
                                 <template x-for="expense in reportData.expenseBreakdown || []" :key="expense.category">
                                     <div class="flex justify-between items-center p-4 bg-slate-50/50 rounded-2xl border border-transparent hover:border-slate-200 hover:bg-white transition-all group">
@@ -347,7 +347,7 @@
                         
                         <!-- Detailed Expenses -->
                         <div class="space-y-6">
-                            <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Transactions DÃ©taillÃ©es</h4>
+                            <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Transactions Détaillées</h4>
                             <div class="space-y-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                                 <template x-for="expense in reportData.expenseDetails || []" :key="expense.id">
                                     <div class="p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-md transition-all">
@@ -364,7 +364,7 @@
                                     </div>
                                 </template>
                                 <div x-show="!reportData.expenseDetails?.length" class="h-full flex flex-col items-center justify-center py-10 text-slate-400">
-                                    <p class="text-sm font-bold italic opacity-50">Aucune dÃ©pense ce mois-ci</p>
+                                    <p class="text-sm font-bold italic opacity-50">Aucune dépense ce mois-ci</p>
                                 </div>
                             </div>
                         </div>
@@ -383,12 +383,12 @@
                                 </div>
                                 Gestion de la Salle
                             </h3>
-                            <p class="text-slate-500 mt-1 font-medium italic">Calcul basÃ© sur 54 USD par culte</p>
+                            <p class="text-slate-500 mt-1 font-medium italic">Calcul basé sur 54 USD par culte</p>
                         </div>
                         
                         <!-- Configuration cultes -->
                         <div class="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-3xl group-hover:bg-white transition-colors">
-                            <span class="text-xs font-black text-slate-400 uppercase tracking-widest">FrÃ©quence</span>
+                            <span class="text-xs font-black text-slate-400 uppercase tracking-widest">Fréquence</span>
                             <select x-model="cultsPerWeek" @change="recalculateExpected()" class="bg-transparent text-sm font-black text-slate-700 outline-none cursor-pointer">
                                 <option value="1">1 culte / semaine</option>
                                 <option value="2">2 cultes / semaine</option>
@@ -401,14 +401,14 @@
                     <!-- Stats salle -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10">
                         <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-amber-200 transition-all text-center">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cultes RÃ©alisÃ©s</p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cultes Réalisés</p>
                             <p class="text-2xl font-black text-amber-600" x-text="reportData.cultsCount"></p>
                             <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase" x-text="'Objectif: ' + reportData.expectedCultsCount"></p>
                         </div>
                         <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-rose-200 transition-all text-center">
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dette Totale</p>
                             <p class="text-2xl font-black text-rose-600" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')"></p>
-                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">PrioritÃ© Absolue</p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">Priorité Absolue</p>
                         </div>
                         <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-emerald-200 transition-all text-center">
                             <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Financiers</p>
@@ -416,13 +416,13 @@
                             <p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase" x-text="reportData.roomCovered ? '100% couvert' : 'En cours'"></p>
                         </div>
                         <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-indigo-200 transition-all text-center">
-                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reste Ã  PayÃ©</p>
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reste à Payé</p>
                             <p class="text-2xl font-black" :class="reportData.roomDeficit > 0 ? 'text-rose-600' : 'text-emerald-600'" x-text="Utils.formatCurrency(reportData.roomDeficit, 'USD')"></p>
-                            <p class="text-[10px] font-bold mt-1 uppercase" :class="reportData.roomDeficit > 0 ? 'text-rose-400' : 'text-emerald-400'" x-text="reportData.roomDeficit > 0 ? 'DÃ©ficit!' : 'SoldÃ©'"></p>
+                            <p class="text-[10px] font-bold mt-1 uppercase" :class="reportData.roomDeficit > 0 ? 'text-rose-400' : 'text-emerald-400'" x-text="reportData.roomDeficit > 0 ? 'Déficit!' : 'Soldé'"></p>
                         </div>
                     </div>
                     
-                    <!-- Alert si dÃ©ficit salle -->
+                    <!-- Alert si déficit salle -->
                     <div x-show="reportData.roomDeficit > 0" class="relative z-10 bg-rose-50 border border-rose-100 rounded-3xl p-6 flex items-center gap-6 animate-pulse shadow-sm shadow-rose-100">
                         <div class="p-3 bg-rose-600 text-white rounded-2xl shadow-lg shadow-rose-200">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -453,9 +453,9 @@
                             <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-black tracking-widest">
                                 <tr>
                                     <th class="py-4 px-6">Membre</th>
-                                    <th class="py-4 px-6">DÃ©partement</th>
+                                    <th class="py-4 px-6">Département</th>
                                     <th class="py-4 px-6 text-right">Attendu</th>
-                                    <th class="py-4 px-6 text-right">PayÃ©</th>
+                                    <th class="py-4 px-6 text-right">Payé</th>
                                     <th class="py-4 px-6 text-right">Reste</th>
                                 </tr>
                             </thead>
@@ -471,7 +471,7 @@
                                 </template>
                                 <tr x-show="!reportData.latePayments?.length">
                                     <td colspan="5" class="py-12 text-center">
-                                        <p class="text-slate-400 font-bold italic">Aucun retard de paiement dÃ©tectÃ©</p>
+                                        <p class="text-slate-400 font-bold italic">Aucun retard de paiement détecté</p>
                                     </td>
                                 </tr>
                             </tbody>
@@ -803,8 +803,8 @@
                                 amount_expected,
                                 amount_paid,
                                 status,
-                                members!inner(id, name, email, phone, is_active),
-                                departments!inner(id, name, contribution_type)
+                                members:members(id, name, email, phone, is_active),
+                                departments:departments(id, name, contribution_type)
                             `)
                             .eq('period_id', this.selectedPeriod)
 
@@ -1253,8 +1253,8 @@
                         doc.line(margin, y, margin + 60, y)
                         y += 10
                         
-                        if (this.reportData.departmentDetails?.length > 0) {
-                            this.reportData.departmentDetails.forEach(dept => {
+                        if (this.reportData.allDepartments?.length > 0) {
+                            this.reportData.allDepartments.forEach(dept => {
                                 checkPageBreak(50)
                                 
                                 // Department Header
@@ -1266,10 +1266,8 @@
                                 doc.text(dept.name || 'Sans département', margin + 5, y + 7)
                                 
                                 // Department stats
-                                const deptTotal = (dept.contributors?.reduce((sum, c) => sum + c.paid, 0) || 0)
-                                const deptExpected = (dept.contributors?.reduce((sum, c) => sum + c.expected, 0) || 0) + 
-                                           (dept.nonContributors?.reduce((sum, m) => sum + m.expected, 0) || 0) + 
-                                           (dept.debtors?.reduce((sum, d) => sum + d.expected, 0) || 0)
+                                const deptTotal = dept.totalPaid || 0
+                                const deptExpected = dept.totalExpected || 0
                                 const deptRate = deptExpected > 0 ? ((deptTotal / deptExpected) * 100).toFixed(1) : 0
                                 
                                 doc.setFontSize(10)
