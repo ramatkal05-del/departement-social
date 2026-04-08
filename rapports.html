@@ -6,10 +6,13 @@
     <title>Rapports - Gestion de Trésorerie</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>`n    <script src="config.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/utils.js"></script>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/main.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -22,218 +25,184 @@
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="grad-mesh">
 
-    <div x-data="reportsData()" x-init="init()" class="flex h-screen">
-        
-        <!-- Sidebar -->
-        <aside class="w-64 bg-white shadow-lg flex flex-col no-print">
-            <div class="p-6 border-b">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-gray-900">Département Social</h1>
-                        <p class="text-xs text-gray-500">Gestion Financière</p>
-                    </div>
-                </div>
+    <div id="app-layout"></div>
+
+    <div id="content-to-move" x-data="reportsData()" x-init="init()" x-cloak class="space-y-8 pb-12">
+        <!-- Action Bar -->
+        <div class="card-premium p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 no-print">
+            <div class="flex items-center gap-3 w-full md:w-auto">
+                <select x-model="selectedPeriod" @change="loadReport()" class="w-full md:w-auto px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-bold text-slate-700 min-w-[200px]">
+                    <option value="">Sélectionner une période...</option>
+                    <template x-for="period in periods" :key="period.id">
+                        <option :value="period.id" x-text="formatPeriod(period.month)"></option>
+                    </template>
+                </select>
             </div>
-
-            <nav class="flex-1 p-4 space-y-1">
-                <a href="dashboard.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    Tableau de Bord
-                </a>
-                <a href="membres.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    Membres
-                </a>
-                <a href="departements.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    Départements
-                </a>
-                <a href="cotisations.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    Périodes & Cotisations
-                </a>
-                <a href="contributions.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Contributions
-                </a>
-                <a href="cultes.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    Cultes & Dette Salle
-                </a>
-                <a href="depenses.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Dépenses
-                </a>
-                <a href="rapports.html" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Rapports
-                </a>
-            </nav>
-
-            <div class="p-4 border-t">
-                <button @click="AuthManager.signOut()" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition w-full">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Déconnexion
+            <div class="flex gap-3 w-full md:w-auto">
+                <button @click="exportPDF()" class="flex-1 md:flex-none justify-center px-6 py-3 bg-white border-2 border-slate-100 text-slate-600 font-bold rounded-2xl hover:bg-slate-50 transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    PDF
+                </button>
+                <button @click="window.print()" class="flex-1 md:flex-none justify-center px-6 py-3 grad-primary text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-blue-500/30 transition-all flex items-center gap-2">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                    Imprimer
                 </button>
             </div>
-        </aside>
+        </div>
 
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
-            <header class="bg-white shadow-sm sticky top-0 z-10 no-print">
-                <div class="px-8 py-4 flex items-center justify-between">
-                    <h2 class="text-2xl font-bold text-gray-900">Rapports Financiers</h2>
-                    <div class="flex gap-3">
-                        <select x-model="selectedPeriod" @change="loadReport()" class="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
-                            <option value="">Sélectionner une période</option>
-                            <template x-for="period in periods" :key="period.id">
-                                <option :value="period.id" x-text="formatPeriod(period.month)"></option>
-                            </template>
-                        </select>
-                        <button @click="exportPDF()" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                            Télécharger PDF
-                        </button>
-                        <button @click="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
-                            Imprimer
-                        </button>
-                    </div>
-                </div>
-            </header>
-
-            <div class="p-8" x-show="selectedPeriod">
-                <!-- Church Header -->
-                <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl shadow-lg p-6 mb-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <!-- Logo Display -->
-                            <div class="w-16 h-16 bg-white/20 backdrop-blur rounded-full flex items-center justify-center overflow-hidden">
-                                <template x-if="churchLogo">
-                                    <img :src="churchLogo" alt="Logo" class="w-full h-full object-cover">
-                                </template>
-                                <template x-if="!churchLogo">
-                                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                    </svg>
-                                </template>
-                            </div>
-                            <div>
-                                <h1 class="text-3xl font-bold">Emerge in Christ</h1>
-                                <p class="text-blue-100">Département Social</p>
-                            </div>
-                        </div>
-                        
-                        <!-- Logo Upload Button -->
-                        <div class="text-right">
-                            <input 
-                                type="file" 
-                                id="logoUpload" 
-                                x-ref="logoUpload"
-                                accept="image/*" 
-                                class="hidden"
-                                @change="handleLogoUpload"
-                            >
-                            <button 
-                                @click="$refs.logoUpload.click()" 
-                                class="bg-white/20 backdrop-blur hover:bg-white/30 px-4 py-2 rounded-lg text-sm transition flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                </svg>
-                                <span x-text="churchLogo ? 'Changer Logo' : 'Ajouter Logo'">Logo</span>
-                            </button>
-                        </div>
+        <div x-show="selectedPeriod" class="space-y-8">
+                <!-- Church Header & Report Info -->
+                <div class="card-premium p-8 relative overflow-hidden group">
+                    <div class="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                        <svg class="w-32 h-32 text-blue-900" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                        </svg>
                     </div>
                     
-                    <!-- Report Title -->
-                    <div class="mt-4 pt-4 border-t border-white/20">
-                        <h2 class="text-xl font-bold">Rapport Financier</h2>
-                        <p class="text-blue-100 mt-1" x-text="reportData.period ? formatPeriod(reportData.period.month) : ''"></p>
-                        <p class="text-sm text-blue-200 mt-1">Généré le <span x-text="new Date().toLocaleDateString('fr-FR')"></span></p>
+                    <div class="relative z-10">
+                        <div class="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                            <div class="flex items-center gap-6">
+                                <div class="w-20 h-20 grad-primary rounded-3xl flex items-center justify-center shadow-lg shadow-blue-500/20 transform group-hover:scale-105 transition-transform">
+                                    <template x-if="churchLogo">
+                                        <img :src="churchLogo" alt="Logo" class="w-full h-full object-cover rounded-3xl">
+                                    </template>
+                                    <template x-if="!churchLogo">
+                                        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                        </svg>
+                                    </template>
+                                </div>
+                                <div>
+                                    <h1 class="text-3xl font-black text-slate-800 tracking-tight">Emerge in Christ</h1>
+                                    <p class="text-blue-600 font-bold uppercase tracking-widest text-sm">Département Social</p>
+                                </div>
+                            </div>
+                            
+                            <div class="text-left md:text-right">
+                                <h2 class="text-xl font-black text-slate-700">Rapport Financier</h2>
+                                <p class="text-slate-500 font-medium" x-text="reportData.period ? formatPeriod(reportData.period.month) : ''"></p>
+                                <p class="text-xs text-slate-400 mt-1">Généré le <span x-text="new Date().toLocaleDateString('fr-FR')"></span></p>
+                                
+                                <div class="mt-4 flex md:justify-end gap-2">
+                                    <input type="file" id="logoUpload" x-ref="logoUpload" accept="image/*" class="hidden" @change="handleLogoUpload">
+                                    <button @click="$refs.logoUpload.click()" class="px-4 py-2 bg-slate-50 hover:bg-white border border-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all flex items-center gap-2">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                        </svg>
+                                        <span x-text="churchLogo ? 'Modifier Logo' : 'Ajouter Logo'">Logo</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Summary Cards - NOUVEAU FORMAT -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                <!-- Summary Cards -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- Revenus -->
-                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-green-500">
-                        <p class="text-xs font-medium text-gray-500 uppercase">Total Contributions</p>
-                        <p class="text-xl font-bold text-green-600 mt-1" x-text="Utils.formatCurrency(reportData.totalContributions, 'USD')"></p>
-                        <p class="text-xs text-gray-400 mt-1" x-text="reportData.contributorsCount + ' membres'">0 membres</p>
+                    <div class="card-premium p-6 border-l-4 border-emerald-500 hover:scale-[1.02] transition-transform">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                        </div>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Contributions</p>
+                        <p class="text-2xl font-black text-slate-800 mt-1" x-text="Utils.formatCurrency(reportData.totalContributions, 'USD')"></p>
+                        <div class="mt-4 flex items-center gap-2">
+                             <span class="text-xs font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full" x-text="reportData.contributorsCount + ' membres'"></span>
+                        </div>
                     </div>
                     
-                    <!-- Dette Salle (Prioritaire) -->
-                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-orange-500">
-                        <p class="text-xs font-medium text-gray-500 uppercase">Dette Salle (Priorité)</p>
-                        <p class="text-xl font-bold text-orange-600 mt-1" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')"></p>
-                        <p class="text-xs text-orange-400 mt-1" x-text="reportData.cultsCount + ' cultes × 54 USD'">0 cultes</p>
+                    <!-- Dette Salle -->
+                    <div class="card-premium p-6 border-l-4 border-amber-500 hover:scale-[1.02] transition-transform">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                            </div>
+                        </div>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Dette Salle</p>
+                        <p class="text-2xl font-black text-amber-600 mt-1" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')"></p>
+                        <div class="mt-4 flex items-center gap-2 text-xs font-bold text-amber-500">
+                             <span x-text="reportData.cultsCount + ' cultes rÃ©alisÃ©s'"></span>
+                        </div>
                     </div>
                     
-                    <!-- Solde après salle -->
-                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-blue-500">
-                        <p class="text-xs font-medium text-gray-500 uppercase">Après Paiement Salle</p>
-                        <p class="text-xl font-bold mt-1" 
-                           :class="reportData.balanceAfterRoom >= 0 ? 'text-blue-600' : 'text-red-600'"
+                    <!-- Solde AprÃ¨s Salle -->
+                    <div class="card-premium p-6 border-l-4 border-blue-500 hover:scale-[1.02] transition-transform">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path></svg>
+                            </div>
+                        </div>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">AprÃ¨s Salle</p>
+                        <p class="text-2xl font-black mt-1" 
+                           :class="reportData.balanceAfterRoom >= 0 ? 'text-blue-600' : 'text-rose-600'"
                            x-text="Utils.formatCurrency(reportData.balanceAfterRoom, 'USD')"></p>
-                        <p class="text-xs mt-1" 
-                           :class="reportData.roomCovered ? 'text-green-500' : 'text-red-500'"
-                           x-text="reportData.roomCovered ? 'Salle couverte' : 'Déficit salle!'">Status</p>
+                        <div class="mt-4">
+                            <span class="text-xs font-bold px-3 py-1 rounded-full"
+                                  :class="reportData.roomCovered ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'"
+                                  x-text="reportData.roomCovered ? 'Salle couverte' : 'DÃ©ficit salle!'"></span>
+                        </div>
                     </div>
                     
-                    <!-- Solde Net Final -->
-                    <div class="bg-white rounded-xl shadow-sm p-4 border-l-4 border-purple-500">
-                        <p class="text-xs font-medium text-gray-500 uppercase">Solde Net Final</p>
-                        <p class="text-xl font-bold mt-1" 
-                           :class="reportData.netBalance >= 0 ? 'text-green-600' : 'text-red-600'"
+                    <!-- Solde Final -->
+                    <div class="card-premium p-6 border-l-4 border-indigo-500 hover:scale-[1.02] transition-transform">
+                        <div class="flex justify-between items-start mb-4">
+                            <div class="p-2 bg-indigo-100 text-indigo-600 rounded-lg">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                            </div>
+                        </div>
+                        <p class="text-xs font-bold text-slate-500 uppercase tracking-wider">Solde Net Final</p>
+                        <p class="text-2xl font-black mt-1" 
+                           :class="reportData.netBalance >= 0 ? 'text-indigo-600' : 'text-rose-600'"
                            x-text="Utils.formatCurrency(reportData.netBalance, 'USD')"></p>
-                        <p class="text-xs text-gray-400 mt-1">Après toutes dépenses</p>
+                        <p class="text-xs text-slate-400 mt-4 font-bold">Bilan après dépenses</p>
                     </div>
                 </div>
 
                 <!-- Department Summary -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                        </svg>
-                        Résumé par Département
-                    </h3>
+                <div class="card-premium overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                            <div class="p-2 bg-blue-100 text-blue-600 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                            RÃ©sumÃ© par DÃ©partement
+                        </h3>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-black tracking-widest">
                                 <tr>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-500">Département</th>
-                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Attendu</th>
-                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Perçu</th>
-                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Taux</th>
+                                    <th class="py-4 px-6">DÃ©partement</th>
+                                    <th class="py-4 px-6 text-right">Attendu</th>
+                                    <th class="py-4 px-6 text-right">PerÃ§u</th>
+                                    <th class="py-4 px-6 text-right">Performance</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-slate-100">
                                 <template x-for="dept in reportData.departmentStats" :key="dept.id">
-                                    <tr class="hover:bg-gray-50">
-                                        <td class="py-3 px-4">
-                                            <div class="flex items-center gap-2">
-                                                <div class="w-2 h-2 rounded-full" :class="dept.rate >= 80 ? 'bg-green-500' : dept.rate >= 50 ? 'bg-yellow-500' : 'bg-red-500'"></div>
-                                                <span class="text-sm font-medium text-gray-900" x-text="dept.name"></span>
+                                    <tr class="hover:bg-slate-50/50 transition-colors">
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-3 h-3 rounded-full shadow-sm" :class="dept.rate >= 80 ? 'bg-emerald-500 shadow-emerald-200' : dept.rate >= 50 ? 'bg-amber-500 shadow-amber-200' : 'bg-rose-500 shadow-rose-200'"></div>
+                                                <span class="text-sm font-bold text-slate-700" x-text="dept.name"></span>
                                             </div>
                                         </td>
-                                        <td class="py-3 px-4 text-sm text-right text-gray-600" x-text="Utils.formatCurrency(dept.expected, 'USD')"></td>
-                                        <td class="py-3 px-4 text-sm text-right font-medium text-green-600" x-text="Utils.formatCurrency(dept.received, 'USD')"></td>
-                                        <td class="py-3 px-4 text-sm text-right">
-                                            <div class="flex items-center justify-end gap-2">
-                                                <div class="w-16 bg-gray-200 rounded-full h-2">
-                                                    <div class="h-2 rounded-full" :class="dept.rate >= 80 ? 'bg-green-500' : dept.rate >= 50 ? 'bg-yellow-500' : 'bg-red-500'" :style="'width: ' + dept.rate + '%'""></div>
+                                        <td class="py-4 px-6 text-sm font-bold text-slate-500 text-right" x-text="Utils.formatCurrency(dept.expected, 'USD')"></td>
+                                        <td class="py-4 px-6 text-sm font-black text-emerald-600 text-right" x-text="Utils.formatCurrency(dept.received, 'USD')"></td>
+                                        <td class="py-4 px-6">
+                                            <div class="flex items-center justify-end gap-3">
+                                                <div class="w-24 bg-slate-100 rounded-full h-2 overflow-hidden">
+                                                    <div class="h-full rounded-full transition-all duration-1000" :class="dept.rate >= 80 ? 'bg-emerald-500' : dept.rate >= 50 ? 'bg-amber-500' : 'bg-rose-500'" :style="'width: ' + dept.rate + '%'"></div>
                                                 </div>
-                                                <span class="px-2 py-1 rounded-full text-xs font-medium"
-                                                      :class="dept.rate >= 80 ? 'bg-green-100 text-green-700' : dept.rate >= 50 ? 'bg-yellow-100 text-yellow-700' : 'bg-red-100 text-red-700'"
-                                                      x-text="dept.rate.toFixed(1) + '%'"></span>
+                                                <span class="text-xs font-black min-w-[40px] text-right"
+                                                      :class="dept.rate >= 80 ? 'text-emerald-600' : dept.rate >= 50 ? 'text-amber-600' : 'text-rose-600'"
+                                                      x-text="dept.rate.toFixed(0) + '%'"></span>
                                             </div>
                                         </td>
                                     </tr>
@@ -244,114 +213,132 @@
                 </div>
 
                 <!-- Department Details - Contributors, Non-Contributors, Debtors -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     <!-- Contributors by Department -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Contributors par Département
+                    <div class="card-premium p-6 flex flex-col h-[500px]">
+                        <h4 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
+                            <div class="p-2 bg-emerald-100 text-emerald-600 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            Contributeurs
                         </h4>
-                        <div class="space-y-3 max-h-64 overflow-y-auto">
+                        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
                             <template x-for="dept in reportData.departmentDetails?.filter(d => d.contributors?.length > 0) || []" :key="dept.id">
-                                <div class="border-l-2 border-green-200 pl-3">
-                                    <p class="text-sm font-medium text-gray-900" x-text="dept.name"></p>
-                                    <div class="mt-1 space-y-1">
+                                <div>
+                                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3" x-text="dept.name"></p>
+                                    <div class="space-y-2">
                                         <template x-for="contributor in dept.contributors" :key="contributor.id">
-                                            <div class="flex justify-between items-center text-xs">
-                                                <span class="text-gray-600" x-text="contributor.name"></span>
-                                                <span class="text-green-600 font-medium" x-text="'$' + contributor.paid"></span>
+                                            <div class="flex justify-between items-center p-3 bg-white/50 border border-slate-100 rounded-xl hover:bg-white transition-colors">
+                                                <span class="text-sm font-bold text-slate-700" x-text="contributor.name"></span>
+                                                <span class="text-sm font-black text-emerald-600" x-text="Utils.formatCurrency(contributor.paid, 'USD')"></span>
                                             </div>
                                         </template>
                                     </div>
                                 </div>
                             </template>
-                            <div x-show="!reportData.departmentDetails?.some(d => d.contributors?.length > 0)" class="text-center text-gray-500 text-sm py-4">
-                                Aucun contributeur enregistré
+                            <div x-show="!reportData.departmentDetails?.some(d => d.contributors?.length > 0)" class="h-full flex flex-col items-center justify-center text-slate-400">
+                                <svg class="w-12 h-12 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <p class="text-sm font-bold">Aucun contributeur</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Non-Contributors by Department -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                            </svg>
-                            Non-Contributors
+                    <div class="card-premium p-6 flex flex-col h-[500px]">
+                        <h4 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
+                            <div class="p-2 bg-amber-100 text-amber-600 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                                </svg>
+                            </div>
+                            En Attente
                         </h4>
-                        <div class="space-y-3 max-h-64 overflow-y-auto">
+                        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
                             <template x-for="dept in reportData.departmentDetails?.filter(d => d.nonContributors?.length > 0) || []" :key="dept.id">
-                                <div class="border-l-2 border-yellow-200 pl-3">
-                                    <p class="text-sm font-medium text-gray-900" x-text="dept.name"></p>
-                                    <div class="mt-1 space-y-1">
+                                <div>
+                                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3" x-text="dept.name"></p>
+                                    <div class="space-y-2">
                                         <template x-for="member in dept.nonContributors" :key="member.id">
-                                            <div class="flex justify-between items-center text-xs">
-                                                <span class="text-gray-600" x-text="member.name"></span>
-                                                <span class="text-yellow-600 font-medium" x-text="'$' + member.expected"></span>
+                                            <div class="flex justify-between items-center p-3 bg-white/50 border border-slate-100 rounded-xl hover:bg-white transition-colors">
+                                                <span class="text-sm font-bold text-slate-700" x-text="member.name"></span>
+                                                <span class="text-sm font-black text-amber-600" x-text="Utils.formatCurrency(member.expected, 'USD')"></span>
                                             </div>
                                         </template>
                                     </div>
                                 </div>
                             </template>
-                            <div x-show="!reportData.departmentDetails?.some(d => d.nonContributors?.length > 0)" class="text-center text-gray-500 text-sm py-4">
-                                Tous les membres ont contribué
+                            <div x-show="!reportData.departmentDetails?.some(d => d.nonContributors?.length > 0)" class="h-full flex flex-col items-center justify-center text-slate-400">
+                                <svg class="w-12 h-12 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"></path></svg>
+                                <p class="text-sm font-bold">Tout est rÃ©glÃ©</p>
                             </div>
                         </div>
                     </div>
 
                     <!-- Debtors by Department -->
-                    <div class="bg-white rounded-xl shadow-sm p-6">
-                        <h4 class="text-md font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                            <svg class="w-4 h-4 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            Débiteurs
+                    <div class="card-premium p-6 flex flex-col h-[500px]">
+                        <h4 class="text-lg font-black text-slate-800 mb-6 flex items-center gap-2">
+                            <div class="p-2 bg-rose-100 text-rose-600 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            Partiels / Dettes
                         </h4>
-                        <div class="space-y-3 max-h-64 overflow-y-auto">
+                        <div class="flex-1 overflow-y-auto pr-2 custom-scrollbar space-y-6">
                             <template x-for="dept in reportData.departmentDetails?.filter(d => d.debtors?.length > 0) || []" :key="dept.id">
-                                <div class="border-l-2 border-red-200 pl-3">
-                                    <p class="text-sm font-medium text-gray-900" x-text="dept.name"></p>
-                                    <div class="mt-1 space-y-1">
+                                <div>
+                                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-3" x-text="dept.name"></p>
+                                    <div class="space-y-2">
                                         <template x-for="debtor in dept.debtors" :key="debtor.id">
-                                            <div class="flex justify-between items-center text-xs">
-                                                <span class="text-gray-600" x-text="debtor.name"></span>
-                                                <span class="text-red-600 font-medium" x-text="'$' + debtor.remaining"></span>
+                                            <div class="flex justify-between items-center p-3 bg-white/50 border border-slate-100 rounded-xl hover:bg-white transition-colors">
+                                                <span class="text-sm font-bold text-slate-700" x-text="debtor.name"></span>
+                                                <span class="text-sm font-black text-rose-600" x-text="Utils.formatCurrency(debtor.remaining, 'USD')"></span>
                                             </div>
                                         </template>
                                     </div>
                                 </div>
                             </template>
-                            <div x-show="!reportData.departmentDetails?.some(d => d.debtors?.length > 0)" class="text-center text-gray-500 text-sm py-4">
-                                Aucun débiteur
+                            <div x-show="!reportData.departmentDetails?.some(d => d.debtors?.length > 0)" class="h-full flex flex-col items-center justify-center text-slate-400">
+                                <svg class="w-12 h-12 mb-2 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                <p class="text-sm font-bold">Aucune dette partielle</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Expenses Breakdown -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                        <svg class="w-5 h-5 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                        </svg>
-                        Dépenses par Catégorie
-                    </h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="card-premium p-8 relative overflow-hidden group">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 relative z-10">
+                        <h3 class="text-2xl font-black text-slate-800 flex items-center gap-3">
+                            <div class="p-3 bg-indigo-100 text-indigo-600 rounded-2xl shadow-sm shadow-indigo-100">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                            Analyse des DÃ©penses
+                        </h3>
+                        <div class="flex items-center gap-4 p-3 bg-slate-50/50 rounded-2xl border border-slate-100">
+                            <p class="text-xs font-black text-slate-400 uppercase tracking-widest">Total DÃ©pensÃ©</p>
+                            <p class="text-xl font-black text-rose-600" x-text="Utils.formatCurrency(reportData.totalExpenses, 'USD')"></p>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10">
                         <!-- Summary by Category -->
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">Résumé par Catégorie</h4>
-                            <div class="space-y-2">
+                        <div class="space-y-6">
+                            <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">RÃ©sumÃ© par CatÃ©gorie</h4>
+                            <div class="space-y-3">
                                 <template x-for="expense in reportData.expenseBreakdown || []" :key="expense.category">
-                                    <div class="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
-                                        <div class="flex items-center gap-2">
-                                            <div class="w-3 h-3 rounded-full" :class="getExpenseColor(expense.category)"></div>
-                                            <span class="text-sm font-medium text-gray-900" x-text="expense.category"></span>
+                                    <div class="flex justify-between items-center p-4 bg-slate-50/50 rounded-2xl border border-transparent hover:border-slate-200 hover:bg-white transition-all group">
+                                        <div class="flex items-center gap-3">
+                                            <div class="w-4 h-4 rounded-full shadow-sm" :class="getExpenseColor(expense.category)"></div>
+                                            <span class="text-sm font-bold text-slate-700" x-text="expense.category"></span>
                                         </div>
                                         <div class="text-right">
-                                            <p class="text-sm font-semibold" x-text="Utils.formatCurrency(expense.total, 'USD')"></p>
-                                            <p class="text-xs text-gray-500" x-text="expense.count + ' dépense(s)'"></p>
+                                            <p class="text-sm font-black text-slate-800" x-text="Utils.formatCurrency(expense.total, 'USD')"></p>
+                                            <p class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter" x-text="expense.count + ' transactions'"></p>
                                         </div>
                                     </div>
                                 </template>
@@ -359,25 +346,25 @@
                         </div>
                         
                         <!-- Detailed Expenses -->
-                        <div>
-                            <h4 class="text-sm font-medium text-gray-700 mb-3">Détail des Dépenses</h4>
-                            <div class="space-y-2 max-h-64 overflow-y-auto">
+                        <div class="space-y-6">
+                            <h4 class="text-sm font-black text-slate-400 uppercase tracking-widest border-b border-slate-100 pb-3">Transactions DÃ©taillÃ©es</h4>
+                            <div class="space-y-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar">
                                 <template x-for="expense in reportData.expenseDetails || []" :key="expense.id">
-                                    <div class="p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
-                                        <div class="flex justify-between items-start">
+                                    <div class="p-4 bg-white border border-slate-100 rounded-2xl hover:shadow-md transition-all">
+                                        <div class="flex justify-between items-start mb-2">
                                             <div class="flex-1">
-                                                <p class="text-sm font-medium text-gray-900" x-text="expense.description"></p>
-                                                <div class="flex items-center gap-2 mt-1">
-                                                    <span class="px-2 py-1 rounded-full text-xs font-medium" :class="getExpenseColor(expense.category) + ' ' + getExpenseTextColor(expense.category)" x-text="expense.category"></span>
-                                                    <span class="text-xs text-gray-500" x-text="new Date(expense.date).toLocaleDateString('fr-FR')"></span>
-                                                </div>
+                                                <p class="text-sm font-bold text-slate-700" x-text="expense.description"></p>
+                                                <p class="text-[10px] text-slate-400 mt-0.5" x-text="new Date(expense.date).toLocaleDateString('fr-FR')"></p>
                                             </div>
-                                            <p class="text-sm font-semibold text-red-600" x-text="Utils.formatCurrency(expense.amount_usd, 'USD')"></p>
+                                            <p class="text-sm font-black text-rose-600" x-text="Utils.formatCurrency(expense.amount_usd, 'USD')"></p>
+                                        </div>
+                                        <div class="flex items-center">
+                                            <span class="text-[9px] font-black px-2 py-0.5 rounded-full border border-slate-100 text-slate-500 uppercase tracking-tighter" x-text="expense.category"></span>
                                         </div>
                                     </div>
                                 </template>
-                                <div x-show="!reportData.expenseDetails?.length" class="text-center text-gray-500 text-sm py-4">
-                                    Aucune dépense enregistrée
+                                <div x-show="!reportData.expenseDetails?.length" class="h-full flex flex-col items-center justify-center py-10 text-slate-400">
+                                    <p class="text-sm font-bold italic opacity-50">Aucune dÃ©pense ce mois-ci</p>
                                 </div>
                             </div>
                         </div>
@@ -385,88 +372,107 @@
                 </div>
 
                 <!-- Room Debt Detail -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Gestion de la Salle</h3>
-                    
-                    <!-- Configuration cultes -->
-                    <div class="bg-gray-50 rounded-lg p-4 mb-4">
-                        <div class="flex items-center justify-between mb-3">
-                            <span class="text-sm font-medium text-gray-700">Cultes par semaine:</span>
-                            <select x-model="cultsPerWeek" @change="recalculateExpected()" class="px-3 py-1 border border-gray-300 rounded-lg text-sm">
-                                <option value="1">1 culte/semaine</option>
-                                <option value="2">2 cultes/semaine (défaut)</option>
-                                <option value="3">3 cultes/semaine</option>
-                                <option value="4">4 cultes/semaine</option>
+                <div class="card-premium p-8 overflow-hidden relative group">
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-8 relative z-10">
+                        <div>
+                            <h3 class="text-2xl font-black text-slate-800 flex items-center gap-3">
+                                <div class="p-3 bg-amber-100 text-amber-600 rounded-2xl">
+                                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                    </svg>
+                                </div>
+                                Gestion de la Salle
+                            </h3>
+                            <p class="text-slate-500 mt-1 font-medium italic">Calcul basÃ© sur 54 USD par culte</p>
+                        </div>
+                        
+                        <!-- Configuration cultes -->
+                        <div class="flex items-center gap-4 p-4 bg-slate-50 border border-slate-100 rounded-3xl group-hover:bg-white transition-colors">
+                            <span class="text-xs font-black text-slate-400 uppercase tracking-widest">FrÃ©quence</span>
+                            <select x-model="cultsPerWeek" @change="recalculateExpected()" class="bg-transparent text-sm font-black text-slate-700 outline-none cursor-pointer">
+                                <option value="1">1 culte / semaine</option>
+                                <option value="2">2 cultes / semaine</option>
+                                <option value="3">3 cultes / semaine</option>
+                                <option value="4">4 cultes / semaine</option>
                             </select>
                         </div>
-                        <p class="text-xs text-gray-500">Coût par culte: <strong>54 USD</strong> | Total attendu: <strong x-text="reportData.expectedCultsCount + ' cultes'">0</strong></p>
                     </div>
 
                     <!-- Stats salle -->
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                        <div class="text-center p-3 bg-orange-50 rounded-lg">
-                            <p class="text-xs text-gray-500">Cultes Réalisés</p>
-                            <p class="text-xl font-bold text-orange-600" x-text="reportData.cultsCount">0</p>
-                            <p class="text-xs text-orange-400">sur <span x-text="reportData.expectedCultsCount">0</span> attendus</p>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 relative z-10">
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-amber-200 transition-all text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Cultes RÃ©alisÃ©s</p>
+                            <p class="text-2xl font-black text-amber-600" x-text="reportData.cultsCount"></p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase" x-text="'Objectif: ' + reportData.expectedCultsCount"></p>
                         </div>
-                        <div class="text-center p-3 bg-red-50 rounded-lg">
-                            <p class="text-xs text-gray-500">Dette Salle Totale</p>
-                            <p class="text-xl font-bold text-red-600" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')">$0</p>
-                            <p class="text-xs text-red-400">à payer en priorité</p>
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-rose-200 transition-all text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Dette Totale</p>
+                            <p class="text-2xl font-black text-rose-600" x-text="Utils.formatCurrency(reportData.roomDebt, 'USD')"></p>
+                            <p class="text-[10px] font-bold text-slate-400 mt-1 uppercase">PrioritÃ© Absolue</p>
                         </div>
-                        <div class="text-center p-3 rounded-lg" :class="reportData.roomCovered ? 'bg-green-50' : 'bg-yellow-50'">
-                            <p class="text-xs text-gray-500">Couvert par Contributions</p>
-                            <p class="text-xl font-bold" :class="reportData.roomCovered ? 'text-green-600' : 'text-yellow-600'" 
-                               x-text="Utils.formatCurrency(Math.min(reportData.totalContributions, reportData.roomDebt), 'USD')">$0</p>
-                            <p class="text-xs" :class="reportData.roomCovered ? 'text-green-500' : 'text-yellow-500'"
-                               x-text="reportData.roomCovered ? '100% couvert' : (reportData.totalContributions/reportData.roomDebt*100).toFixed(0) + '% couvert'">0%</p>
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-emerald-200 transition-all text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Financiers</p>
+                            <p class="text-2xl font-black text-emerald-600" x-text="Utils.formatCurrency(Math.min(reportData.totalContributions, reportData.roomDebt), 'USD')"></p>
+                            <p class="text-[10px] font-bold text-emerald-500 mt-1 uppercase" x-text="reportData.roomCovered ? '100% couvert' : 'En cours'"></p>
                         </div>
-                        <div class="text-center p-3 rounded-lg" :class="reportData.roomDeficit > 0 ? 'bg-red-50' : 'bg-green-50'">
-                            <p class="text-xs text-gray-500">Reste à Payer Salle</p>
-                            <p class="text-xl font-bold" :class="reportData.roomDeficit > 0 ? 'text-red-600' : 'text-green-600'"
-                               x-text="Utils.formatCurrency(reportData.roomDeficit, 'USD')">$0</p>
-                            <p class="text-xs" x-text="reportData.roomDeficit > 0 ? 'Déficit!' : 'Soldé'">Status</p>
+                        <div class="p-6 bg-slate-50 rounded-3xl border border-transparent hover:border-indigo-200 transition-all text-center">
+                            <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Reste Ã  PayÃ©</p>
+                            <p class="text-2xl font-black" :class="reportData.roomDeficit > 0 ? 'text-rose-600' : 'text-emerald-600'" x-text="Utils.formatCurrency(reportData.roomDeficit, 'USD')"></p>
+                            <p class="text-[10px] font-bold mt-1 uppercase" :class="reportData.roomDeficit > 0 ? 'text-rose-400' : 'text-emerald-400'" x-text="reportData.roomDeficit > 0 ? 'DÃ©ficit!' : 'SoldÃ©'"></p>
                         </div>
                     </div>
                     
-                    <!-- Alert si déficit salle -->
-                    <div x-show="reportData.roomDeficit > 0" class="mt-4 bg-red-50 border border-red-200 rounded-lg p-3 flex items-center gap-3">
-                        <svg class="w-5 h-5 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
-                        </svg>
-                        <p class="text-sm text-red-700">
-                            <strong>Alerte:</strong> Les contributions ne couvrent pas la dette de salle. 
-                            Il manque <span x-text="Utils.formatCurrency(reportData.roomDeficit, 'USD')"></span> pour payer la salle.
-                        </p>
+                    <!-- Alert si dÃ©ficit salle -->
+                    <div x-show="reportData.roomDeficit > 0" class="relative z-10 bg-rose-50 border border-rose-100 rounded-3xl p-6 flex items-center gap-6 animate-pulse shadow-sm shadow-rose-100">
+                        <div class="p-3 bg-rose-600 text-white rounded-2xl shadow-lg shadow-rose-200">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="text-lg font-black text-rose-700 tracking-tight">Alerte de Financement Salle</p>
+                            <p class="text-sm font-bold text-rose-600/80">
+                                Les contributions actuelles ne couvrent pas la location. Manque <span class="bg-rose-600 text-white px-2 py-0.5 rounded text-xs ml-1" x-text="Utils.formatCurrency(reportData.roomDeficit, 'USD')"></span>
+                            </p>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Late Payments -->
-                <div class="bg-white rounded-xl shadow-sm p-6 mb-6">
-                    <h3 class="text-lg font-semibold text-gray-900 mb-4">Paiements en Retard</h3>
+                <div class="card-premium overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                             <div class="p-2 bg-rose-100 text-rose-600 rounded-lg">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            </div>
+                            Paiements en Retard
+                        </h3>
+                    </div>
                     <div class="overflow-x-auto">
-                        <table class="w-full">
-                            <thead class="bg-gray-50">
+                        <table class="w-full text-left">
+                            <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-black tracking-widest">
                                 <tr>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-500">Membre</th>
-                                    <th class="text-left py-3 px-4 text-sm font-medium text-gray-500">Département</th>
-                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Montant Attendu</th>
-                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Montant Payé</th>
-                                    <th class="text-right py-3 px-4 text-sm font-medium text-gray-500">Reste</th>
+                                    <th class="py-4 px-6">Membre</th>
+                                    <th class="py-4 px-6">DÃ©partement</th>
+                                    <th class="py-4 px-6 text-right">Attendu</th>
+                                    <th class="py-4 px-6 text-right">PayÃ©</th>
+                                    <th class="py-4 px-6 text-right">Reste</th>
                                 </tr>
                             </thead>
-                            <tbody class="divide-y divide-gray-100">
+                            <tbody class="divide-y divide-slate-100">
                                 <template x-for="late in reportData.latePayments" :key="late.id">
-                                    <tr>
-                                        <td class="py-3 px-4 text-sm font-medium text-gray-900" x-text="late.member?.name"></td>
-                                        <td class="py-3 px-4 text-sm text-gray-600" x-text="late.department?.name"></td>
-                                        <td class="py-3 px-4 text-sm text-right" x-text="'$' + late.amount_expected"></td>
-                                        <td class="py-3 px-4 text-sm text-right text-green-600" x-text="'$' + (late.amount_paid || 0)"></td>
-                                        <td class="py-3 px-4 text-sm text-right text-red-600 font-medium" x-text="'$' + (late.amount_expected - (late.amount_paid || 0)).toFixed(2)"></td>
+                                    <tr class="hover:bg-rose-50/30 transition-colors">
+                                        <td class="py-4 px-6 text-sm font-bold text-slate-700" x-text="late.member?.name"></td>
+                                        <td class="py-4 px-6 text-sm text-slate-500 font-medium" x-text="late.department?.name"></td>
+                                        <td class="py-4 px-6 text-sm text-right font-bold text-slate-700" x-text="Utils.formatCurrency(late.amount_expected, 'USD')"></td>
+                                        <td class="py-4 px-6 text-sm text-right font-bold text-emerald-600" x-text="Utils.formatCurrency(late.amount_paid || 0, 'USD')"></td>
+                                        <td class="py-4 px-6 text-sm text-right font-black text-rose-600" x-text="Utils.formatCurrency(late.amount_expected - (late.amount_paid || 0), 'USD')"></td>
                                     </tr>
                                 </template>
                                 <tr x-show="!reportData.latePayments?.length">
-                                    <td colspan="5" class="py-8 text-center text-gray-500">Aucun paiement en retard</td>
+                                    <td colspan="5" class="py-12 text-center">
+                                        <p class="text-slate-400 font-bold italic">Aucun retard de paiement dÃ©tectÃ©</p>
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>
@@ -479,7 +485,7 @@
                 <svg class="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                 <p>Sélectionnez une période pour voir le rapport</p>
             </div>
-        </main>
+        </div>
     </div>
 
     <script>
@@ -1746,6 +1752,9 @@
                 }
             }
         }
+        document.addEventListener('DOMContentLoaded', () => {
+            UIManager.init('Rapports');
+        });
     </script>
 </body>
 </html>

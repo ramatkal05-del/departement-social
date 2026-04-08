@@ -3,168 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Départements - Gestion de Trésorerie</title>
+    <title>Départements - Emerge Social</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>`n    <script src="config.js"></script>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/utils.js"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .sidebar-link:hover { background-color: rgba(59, 130, 246, 0.1); }
-        .sidebar-link.active { background-color: rgba(59, 130, 246, 0.15); color: #2563eb; border-right: 3px solid #2563eb; }
-    </style>
+    <script src="js/ui.js"></script>
+    <link rel="stylesheet" href="css/main.css">
 </head>
-<body class="bg-gray-50">
+<body class="grad-mesh">
 
-    <div x-data="departmentsData()" x-init="init()" class="flex h-screen">
+    <div id="app-layout"></div>
+
+    <div id="content-to-move" x-data="departmentsData()" x-init="init()" class="space-y-8">
         
-        <!-- Sidebar -->
-        <aside class="w-64 bg-white shadow-lg flex flex-col">
-            <div class="p-6 border-b">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <h1 class="font-bold text-gray-900">Département Social</h1>
-                        <p class="text-xs text-gray-500">Gestion Financière</p>
-                    </div>
-                </div>
-            </div>
+        <!-- Action Bar -->
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <h3 class="text-sm font-black text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                Liste des Départements
+            </h3>
+            
+            <button @click="showModal = true; resetForm()" class="grad-primary text-white px-6 py-3 rounded-2xl font-black flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-blue-500/30 transition-all active:scale-95 group">
+                <svg class="w-5 h-5 group-hover:rotate-90 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                Nouveau Département
+            </button>
+        </div>
 
-            <nav class="flex-1 p-4 space-y-1">
-                <a href="dashboard.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"></path></svg>
-                    Tableau de Bord
-                </a>
-                <a href="membres.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    Membres
-                </a>
-                <a href="departements.html" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    Départements
-                </a>
-                <a href="cotisations.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    Périodes & Cotisations
-                </a>
-                <a href="contributions.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    Paiements
-                </a>
-                <a href="cultes.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
-                    Cultes & Dette Salle
-                </a>
-                <a href="depenses.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    Dépenses
-                </a>
-                <a href="rapports.html" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-gray-700 transition">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                    Rapports
-                </a>
-            </nav>
-
-            <div class="p-4 border-t">
-                <button @click="AuthManager.signOut()" class="flex items-center gap-3 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition w-full">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                    Déconnexion
-                </button>
-            </div>
-        </aside>
-
-        <!-- Main Content -->
-        <main class="flex-1 overflow-y-auto">
-            <header class="bg-white shadow-sm sticky top-0 z-10">
-                <div class="px-8 py-4 flex items-center justify-between">
-                    <h2 class="text-2xl font-bold text-gray-900">Gestion des Départements</h2>
-                    <button @click="showModal = true; resetForm()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Ajouter un Département
-                    </button>
-                </div>
-            </header>
-
-            <div class="p-8">
-                <!-- Departments Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <template x-for="dept in departments" :key="dept.id">
-                        <div class="bg-white rounded-xl shadow-sm p-6 hover:shadow-md transition">
-                            <div class="flex items-start justify-between">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                        <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
-                                        </svg>
-                                    </div>
-                                    <div>
-                                        <h3 class="font-semibold text-gray-900" x-text="dept.name"></h3>
-                                        <p class="text-sm text-gray-500" x-text="dept.member_count + ' membre(s)'"></p>
-                                    </div>
-                                </div>
-                                <div class="flex gap-2">
-                                    <button @click="editDepartment(dept)" class="text-blue-600 hover:text-blue-800 p-1">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
-                                    </button>
-                                    <button @click="deleteDepartment(dept.id)" class="text-red-600 hover:text-red-800 p-1">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                    </button>
-                                </div>
-                            </div>
-                            
-                            <div class="mt-4 pt-4 border-t border-gray-100">
-                                <div class="flex items-center justify-between text-sm">
-                                    <span class="text-gray-500">Type de cotisation:</span>
-                                    <span class="font-medium text-gray-900" x-text="Utils.formatContributionType(dept.contribution_type)"></span>
-                                </div>
-                                <div class="flex items-center justify-between text-sm mt-2" x-show="dept.contribution_type === 'FIXED_20_USD'">
-                                    <span class="text-gray-500">Montant mensuel:</span>
-                                    <span class="font-medium text-gray-900">$20.00</span>
-                                </div>
-                            </div>
+        <!-- Departments Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <template x-for="dept in departments" :key="dept.id">
+                <div class="card-premium p-6 flex flex-col group">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
                         </div>
-                    </template>
-                    
-                    <div x-show="departments.length === 0" class="col-span-full text-center py-12 text-gray-500">
-                        Aucun département créé
+                        <div class="flex gap-1">
+                            <button @click="editDepartment(dept)" class="p-2 text-slate-400 hover:text-blue-600 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                            </button>
+                            <button @click="deleteDepartment(dept.id)" class="p-2 text-slate-400 hover:text-rose-600 transition-colors">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-xl font-black text-slate-900 mb-1" x-text="dept.name"></h4>
+                        <p class="text-sm font-medium text-slate-500" x-text="dept.description || 'Aucune description'"></p>
                     </div>
                 </div>
+            </template>
+            <div x-show="departments.length === 0" class="lg:col-span-3 text-center py-20 bg-white/50 rounded-3xl border border-dashed border-slate-300">
+                <p class="text-slate-400 font-medium italic">Aucun département configuré</p>
             </div>
-        </main>
+        </div>
 
         <!-- Modal -->
-        <div x-show="showModal" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50" x-transition>
-            <div class="bg-white rounded-xl p-6 w-full max-w-md" @click.away="showModal = false">
-                <h3 class="text-xl font-bold mb-4" x-text="editingId ? 'Modifier le Département' : 'Ajouter un Département'"></h3>
+        <div x-show="showModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-[100] p-4" x-transition.opacity>
+            <div class="bg-white rounded-[2.5rem] shadow-2xl p-8 lg:p-10 w-full max-w-lg overflow-hidden border border-white animate-fade-in" @click.away="showModal = false">
+                <div class="flex items-center justify-between mb-8">
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight" x-text="editingId ? 'Modifier Département' : 'Nouveau Département'"></h3>
+                    <button @click="showModal = false" class="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
+                </div>
                 
-                <form @submit.prevent="saveDepartment" class="space-y-4">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Nom du département</label>
-                        <input type="text" x-model="form.name" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                <form @submit.prevent="saveDepartment" class="space-y-6">
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Nom du département</label>
+                        <input type="text" x-model="form.name" required class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-bold">
                     </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">Type de cotisation</label>
-                        <select x-model="form.contribution_type" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none">
-                            <option value="FIXED_20_USD">20 USD fixe (départements standards)</option>
-                            <option value="VARIABLE_PER_MEMBER">Montant variable (Bergerie, Partenaires)</option>
-                        </select>
+                    <div class="space-y-2">
+                        <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest ml-1">Description</label>
+                        <textarea x-model="form.description" rows="3" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-blue-500 outline-none transition-all font-medium" placeholder="Brève description du rôle..."></textarea>
                     </div>
 
-                    <div x-show="form.contribution_type === 'VARIABLE_PER_MEMBER'" class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                        <p class="text-sm text-yellow-800">Ce type permet de saisir des montants variables pour chaque membre lors de la génération des cotisations.</p>
-                    </div>
-
-                    <div class="flex gap-3 pt-4">
-                        <button type="button" @click="showModal = false" class="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition">Annuler</button>
-                        <button type="submit" class="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Enregistrer</button>
+                    <div class="flex flex-col sm:flex-row gap-3 pt-6">
+                        <button type="button" @click="showModal = false" class="flex-1 px-6 py-4 border-2 border-slate-100 text-slate-500 font-bold rounded-2xl hover:bg-slate-50 transition-all">Annuler</button>
+                        <button type="submit" class="flex-1 px-6 py-4 grad-primary text-white font-bold rounded-2xl hover:shadow-lg hover:shadow-blue-500/30 transition-all">Enregistrer</button>
                     </div>
                 </form>
             </div>
@@ -172,6 +92,10 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            UIManager.init('Départements');
+        });
+
         function departmentsData() {
             return {
                 departments: [],
@@ -179,7 +103,7 @@
                 editingId: null,
                 form: {
                     name: '',
-                    contribution_type: 'FIXED_20_USD'
+                    description: ''
                 },
 
                 async init() {
@@ -193,10 +117,7 @@
 
                     const { data, error } = await supabase
                         .from('departments')
-                        .select(`
-                            *,
-                            member_departments(count)
-                        `)
+                        .select('*')
                         .order('name')
 
                     if (error) {
@@ -204,17 +125,14 @@
                         return
                     }
 
-                    this.departments = (data || []).map(d => ({
-                        ...d,
-                        member_count: d.member_departments?.[0]?.count || 0
-                    }))
+                    this.departments = data || []
                 },
 
                 resetForm() {
                     this.editingId = null
                     this.form = {
                         name: '',
-                        contribution_type: 'FIXED_20_USD'
+                        description: ''
                     }
                 },
 
@@ -222,7 +140,7 @@
                     this.editingId = dept.id
                     this.form = {
                         name: dept.name,
-                        contribution_type: dept.contribution_type
+                        description: dept.description || ''
                     }
                     this.showModal = true
                 },
@@ -233,8 +151,7 @@
 
                     const deptData = {
                         name: this.form.name,
-                        contribution_type: this.form.contribution_type,
-                        is_variable: this.form.contribution_type === 'VARIABLE_PER_MEMBER'
+                        description: this.form.description
                     }
 
                     if (this.editingId) {
@@ -248,7 +165,10 @@
                             return
                         }
                     } else {
-                        const { error } = await supabase.from('departments').insert(deptData)
+                        const { error } = await supabase
+                            .from('departments')
+                            .insert(deptData)
+
                         if (error) {
                             Utils.showToast('Erreur de création', 'error')
                             return
@@ -261,7 +181,7 @@
                 },
 
                 async deleteDepartment(id) {
-                    if (!confirm('Êtes-vous sûr de vouloir supprimer ce département ?')) return
+                    if (!confirm('Supprimer ce département ? Cela peut affecter les membres associés.')) return
 
                     const supabase = getSupabase()
                     if (!supabase) return
