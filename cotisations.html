@@ -196,7 +196,9 @@
                 },
 
                 formatPeriod(monthStr) {
+                    if (!monthStr || typeof monthStr !== 'string') return '-'
                     const [year, month] = monthStr.split('-')
+                    if (!year || !month) return '-'
                     const date = new Date(parseInt(year), parseInt(month) - 1)
                     return date.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' })
                 },

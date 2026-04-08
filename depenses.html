@@ -125,7 +125,7 @@
                     </button>
                 </div>
 
-                <form @submit.prevent="saveExpense" class="space-y-5">
+                <form @submit.prevent="saveDepense" class="space-y-5">
                     <div>
                         <label class="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">Description</label>
                         <input type="text" x-model="form.description" required placeholder="Ex: Achat de fournitures" class="w-full px-4 py-3 bg-slate-50 border-2 border-transparent rounded-2xl focus:bg-white focus:border-rose-500 outline-none transition-all font-medium">
@@ -177,9 +177,9 @@
     </div>
 
     <script>
-        function expensesData() {
+        function depensesData() {
             return {
-                expenses: [],
+                depenses: [],
                 showModal: false,
                 form: {
                     description: '',
@@ -192,14 +192,14 @@
                 get monthlyTotal() {
                     const now = new Date()
                     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-                    return this.expenses
+                    return this.depenses
                         .filter(e => new Date(e.date) >= startOfMonth)
                         .reduce((sum, e) => sum + (e.amount_usd || 0), 0)
                 },
 
                 get topCategory() {
                     const categories = {}
-                    this.expenses.forEach(e => {
+                    this.depenses.forEach(e => {
                         categories[e.category] = (categories[e.category] || 0) + (e.amount_usd || 0)
                     })
                     const sorted = Object.entries(categories).sort((a, b) => b[1] - a[1])
@@ -208,10 +208,10 @@
 
                 async init() {
                     AuthManager.checkAuth()
-                    await this.loadExpenses()
+                    await this.loadDepenses()
                 },
 
-                async loadExpenses() {
+                async loadDepenses() {
                     const supabase = getSupabase()
                     if (!supabase) return
 
@@ -225,7 +225,7 @@
                         return
                     }
 
-                    this.expenses = data || []
+                    this.depenses = data || []
                 },
 
                 resetForm() {
@@ -262,7 +262,7 @@
                     return classes[category] || 'bg-gray-100 text-gray-700'
                 },
 
-                async saveExpense() {
+                async saveDepense() {
                     const supabase = getSupabase()
                     if (!supabase) return
 
@@ -284,10 +284,10 @@
 
                     Utils.showToast('Dépense enregistrée')
                     this.showModal = false
-                    await this.loadExpenses()
+                    await this.loadDepenses()
                 },
 
-                async deleteExpense(id) {
+                async deleteDepense(id) {
                     if (!confirm('Êtes-vous sûr de vouloir supprimer cette dépense ?')) return
 
                     const supabase = getSupabase()
@@ -301,7 +301,7 @@
                     }
 
                     Utils.showToast('Dépense supprimée')
-                    await this.loadExpenses()
+                    await this.loadDepenses()
                 }
             }
         }
