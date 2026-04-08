@@ -42,49 +42,69 @@
         <!-- Members Table -->
         <div class="card-premium overflow-hidden">
             <div class="table-container">
-                <table>
-                    <thead>
+                <table class="min-w-full">
+                    <thead class="hidden sm:table-header-group">
                         <tr>
-                            <th>Membre</th>
-                            <th>Contact</th>
-                            <th>Départements</th>
-                            <th>Statut</th>
+                            <th class="text-left">Membre</th>
+                            <th class="text-left hidden md:table-cell">Contact</th>
+                            <th class="text-left hidden lg:table-cell">Départements</th>
+                            <th class="text-left">Statut</th>
                             <th class="text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
                         <template x-for="member in filteredMembers" :key="member.id">
-                            <tr class="hover:bg-slate-50/50 transition-colors">
-                                <td class="py-4 px-6">
+                            <tr class="hover:bg-slate-50/50 transition-colors block sm:table-row border-b sm:border-b-0 last:border-b-0 py-3 sm:py-0 px-3 sm:px-0">
+                                <!-- Mobile: Stacked layout -->
+                                <td class="py-2 sm:py-4 px-2 sm:px-6 block sm:table-cell">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm" x-text="member.name.charAt(0)"></div>
-                                        <div class="font-bold text-slate-900" x-text="member.name"></div>
+                                        <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-700 font-bold text-sm flex-shrink-0" x-text="member.name.charAt(0)"></div>
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-slate-900 truncate" x-text="member.name"></div>
+                                            <!-- Mobile only: show email -->
+                                            <div class="sm:hidden text-xs text-slate-500 truncate" x-text="member.email"></div>
+                                            <!-- Mobile only: show departments -->
+                                            <div class="sm:hidden text-xs text-slate-500 mt-1">
+                                                <span x-text="member.member_departments?.length ? member.member_departments.map(d => d.department?.name).join(', ') : 'Aucun département'"></span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </td>
-                                <td class="py-4 px-6">
-                                    <div class="text-sm font-medium text-slate-600" x-text="member.email"></div>
-                                    <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5" x-text="member.phone_number || 'Aucun WhatsApp'"></div>
+                                <td class="py-2 sm:py-4 px-2 sm:px-6 hidden md:table-cell">
+                                    <div class="text-sm font-medium text-slate-600 truncate" x-text="member.email"></div>
+                                    <div class="text-xs font-bold text-slate-400 uppercase tracking-wider mt-0.5" x-text="member.phone_number || 'Aucun WhatsApp'"></div>
                                 </td>
-                                <td class="py-4 px-6">
+                                <td class="py-2 sm:py-4 px-2 sm:px-6 hidden lg:table-cell">
                                     <div class="flex flex-wrap gap-1.5">
                                         <template x-for="dept in member.member_departments" :key="dept.id">
-                                            <span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-[10px] font-black rounded-lg border border-slate-200 uppercase tracking-tight" 
-                                                  x-text="dept.department?.name + ' (' + Utils.formatRole(dept.role) + ')'"></span>
+                                            <span class="px-2 py-0.5 bg-slate-100 text-slate-700 text-xs font-semibold rounded-md border border-slate-200" 
+                                                  x-text="dept.department?.name"></span>
                                         </template>
-                                        <div x-show="!member.member_departments?.length" class="text-slate-400 text-xs italic">Aucun département</div>
+                                        <span x-show="!member.member_departments?.length" class="text-slate-400 text-xs italic">-</span>
                                     </div>
                                 </td>
-                                <td class="py-4 px-6">
-                                    <span :class="member.is_active ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'" 
-                                          class="px-3 py-1 text-[10px] font-black uppercase tracking-widest rounded-full border"
-                                          x-text="member.is_active ? 'Actif' : 'Inactif'"></span>
+                                <td class="py-2 sm:py-4 px-2 sm:px-6 block sm:table-cell">
+                                    <div class="flex items-center justify-between sm:justify-start">
+                                        <span :class="member.is_active ? 'bg-emerald-100 text-emerald-700 border-emerald-200' : 'bg-slate-100 text-slate-500 border-slate-200'" 
+                                              class="px-2.5 py-0.5 text-xs font-bold uppercase tracking-wider rounded-full border"
+                                              x-text="member.is_active ? 'Actif' : 'Inactif'"></span>
+                                        <!-- Mobile: action buttons inline -->
+                                        <div class="flex gap-1 sm:hidden">
+                                            <button @click="editMember(member)" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                                            </button>
+                                            <button @click="deleteMember(member.id)" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </td>
-                                <td class="py-4 px-6 text-right">
+                                <td class="py-2 sm:py-4 px-2 sm:px-6 text-right hidden sm:table-cell">
                                     <div class="flex justify-end gap-2">
                                         <button @click="editMember(member)" class="p-2 text-blue-600 hover:bg-blue-50 rounded-xl transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                                         </button>
-                                        <button @click="deleteMember(member.id)" class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors text-right">
+                                        <button @click="deleteMember(member.id)" class="p-2 text-rose-600 hover:bg-rose-50 rounded-xl transition-colors">
                                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                         </button>
                                     </div>

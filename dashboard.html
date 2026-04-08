@@ -100,29 +100,37 @@
             </div>
 
             <!-- Recent Payments -->
-            <div class="lg:col-span-2 card-premium p-6">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">
-                        <span class="w-1.5 h-6 bg-blue-600 rounded-full"></span>
+            <div class="lg:col-span-2 card-premium p-4 sm:p-6">
+                <div class="flex items-center justify-between mb-4 sm:mb-6">
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <span class="w-1.5 h-5 sm:h-6 bg-blue-600 rounded-full"></span>
                         Dernières Contributions
                     </h3>
-                    <a href="contributions.html" class="text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">Voir tout</a>
+                    <a href="contributions.html" class="text-xs sm:text-sm font-bold text-blue-600 hover:text-blue-800 transition-colors">Voir tout</a>
                 </div>
                 <div class="table-container">
-                    <table>
-                        <thead>
+                    <table class="w-full">
+                        <thead class="hidden sm:table-header-group">
                             <tr>
-                                <th>Membre</th>
-                                <th>Montant</th>
-                                <th>Date</th>
+                                <th class="text-left">Membre</th>
+                                <th class="text-left">Montant</th>
+                                <th class="text-left">Date</th>
                             </tr>
                         </thead>
                         <tbody>
                             <template x-for="payment in recentPayments" :key="payment.id">
-                                <tr>
-                                    <td class="font-bold text-slate-900" x-text="payment.member?.name || 'Inconnu'"></td>
-                                    <td class="font-black text-emerald-600" x-text="Utils.formatCurrency(payment.amount_usd, 'USD')"></td>
-                                    <td class="text-slate-500 font-medium" x-text="Utils.formatDate(payment.date)"></td>
+                                <tr class="block sm:table-row border-b sm:border-b-0 last:border-b-0 py-2 sm:py-0">
+                                    <!-- Mobile: stacked layout -->
+                                    <td class="py-1 sm:py-3 px-2 sm:px-4 block sm:table-cell">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-slate-900 text-sm sm:text-base" x-text="payment.member?.name || 'Inconnu'"></span>
+                                            <span class="sm:hidden font-black text-emerald-600 text-sm" x-text="Utils.formatCurrency(payment.amount_usd, 'USD')"></span>
+                                        </div>
+                                        <div class="sm:hidden text-xs text-slate-500" x-text="Utils.formatDate(payment.date)"></div>
+                                    </td>
+                                    <!-- Desktop: separate columns -->
+                                    <td class="hidden sm:table-cell py-3 px-4 font-black text-emerald-600" x-text="Utils.formatCurrency(payment.amount_usd, 'USD')"></td>
+                                    <td class="hidden sm:table-cell py-3 px-4 text-slate-500 font-medium" x-text="Utils.formatDate(payment.date)"></td>
                                 </tr>
                             </template>
                             <tr x-show="recentPayments.length === 0">
