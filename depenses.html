@@ -181,6 +181,7 @@
             return {
                 depenses: [],
                 showModal: false,
+                editingId: null,
                 form: {
                     description: '',
                     category: '',
@@ -195,6 +196,10 @@
                     return this.depenses
                         .filter(e => new Date(e.date) >= startOfMonth)
                         .reduce((sum, e) => sum + (e.amount_usd || 0), 0)
+                },
+
+                get totalDepenses() {
+                    return this.depenses.reduce((sum, e) => sum + (e.amount_usd || 0), 0)
                 },
 
                 get topCategory() {

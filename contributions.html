@@ -233,6 +233,10 @@
                 members: [],
                 pendingContributions: [],
                 memberRoomDebt: 0,
+                search: '',
+                filterMember: '',
+                loading: false,
+                editingId: null,
                 showModal: false,
                 form: {
                     member_id: '',
@@ -247,6 +251,7 @@
 
                 async init() {
                     AuthManager.checkAuth()
+                    this.loading = true
                     await this.loadMembers()
                     await this.loadPayments()
                 },
@@ -289,6 +294,25 @@
                     }
 
                     this.payments = data || []
+                    this.loading = false
+                },
+
+                get filteredPayments() {
+                    let result = this.payments
+                    
+                    if (this.search) {
+                        const searchLower = this.search.toLowerCase()
+                        result = result.filter(p => 
+                            p.member?.name?.toLowerCase().includes(searchLower) ||
+                            p.note?.toLowerCase().includes(searchLower)
+                        )
+                    }
+                    
+                    if (this.filterMember) {
+                        result = result.filter(p => p.member_id === this.filterMember)
+                    }
+                    
+                    return result
                 },
 
                 async loadPendingContributions(memberId) {
