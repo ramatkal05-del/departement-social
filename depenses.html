@@ -107,7 +107,7 @@
                                 </td>
                             </tr>
                         </template>
-                        <tr x-show="depenses.length === 0">
+                        <tr x-show="depenses.length === 0 && !loading">
                             <td colspan="4" class="py-20 text-center text-slate-400 font-medium italic">Aucune dépense enregistrée</td>
                         </tr>
                     </tbody>

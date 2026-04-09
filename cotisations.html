@@ -68,7 +68,7 @@
                     </div>
                 </div>
             </template>
-            <div x-show="periods.length === 0" class="lg:col-span-3 text-center py-20 bg-white/50 rounded-3xl border border-dashed border-slate-300">
+            <div x-show="periods.length === 0 && !loading" class="lg:col-span-3 text-center py-20 bg-white/50 rounded-3xl border border-dashed border-slate-300">
                 <p class="text-slate-400 font-medium italic text-sm">Aucune période définie</p>
             </div>
         </div>
@@ -148,6 +148,7 @@
         function periodsData() {
             return {
                 periods: [],
+                loading: true,
                 showModal: false,
                 showContributionsModal: false,
                 showVariableModal: false,
@@ -160,13 +161,16 @@
 
                 async init() {
                     AuthManager.checkAuth()
+                    this.loading = true
                     await this.loadPeriods()
+                    this.loading = false
                 },
 
                 async loadPeriods() {
                     const supabase = getSupabase()
                     if (!supabase) return
 
+                    this.loading = true
                     const { data, error } = await supabase
                         .from('periods')
                         .select(`
@@ -193,6 +197,7 @@
                         const totalPaid = contribs.reduce((sum, c) => sum + (c.amount_paid || 0), 0)
                         return { ...p, totalExpected, totalPaid }
                     })
+                    this.loading = false
                 },
 
                 formatPeriod(monthStr) {

@@ -95,7 +95,7 @@
                                 </td>
                             </tr>
                         </template>
-                        <tr x-show="filteredPayments.length === 0">
+                        <tr x-show="filteredPayments.length === 0 && !loading">
                             <td colspan="6" class="py-24 text-center">
                                 <template x-if="loading">
                                     <div class="flex flex-col items-center gap-4">

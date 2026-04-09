@@ -111,8 +111,16 @@
                                 </td>
                             </tr>
                         </template>
-                        <tr x-show="filteredMembers.length === 0">
+                        <tr x-show="filteredMembers.length === 0 && !loading">
                             <td colspan="5" class="py-20 text-center text-slate-400 font-medium italic">Aucun membre trouvé</td>
+                        </tr>
+                        <tr x-show="loading">
+                            <td colspan="5" class="py-20">
+                                <div class="flex flex-col items-center gap-4">
+                                    <div class="w-10 h-10 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
+                                    <span class="text-sm font-bold text-slate-400">Chargement...</span>
+                                </div>
+                            </td>
                         </tr>
                     </tbody>
                 </table>
@@ -198,6 +206,7 @@
                 search: '',
                 showModal: false,
                 editingId: null,
+                loading: true,
                 form: {
                     name: '',
                     email: '',
@@ -218,14 +227,16 @@
 
                 async init() {
                     AuthManager.checkAuth()
-                    await this.loadDepartments()
-                    await this.loadMembers()
+                    this.loading = true
+                    await Promise.all([this.loadDepartments(), this.loadMembers()])
+                    this.loading = false
                 },
 
                 async loadMembers() {
                     const supabase = getSupabase()
                     if (!supabase) return
 
+                    this.loading = true
                     const { data, error } = await supabase
                         .from('members')
                         .select(`
@@ -245,6 +256,7 @@
                     }
 
                     this.members = data || []
+                    this.loading = false
                 },
 
                 async loadDepartments() {
