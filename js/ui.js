@@ -1,5 +1,6 @@
 /**
- * UI Manager - Handles responsive layouts, sidebar injection, and shared components
+ * UI Manager - Minimalist Dark Theme
+ * Handles responsive layouts, sidebar injection, and shared components
  */
 const UIManager = {
     menuItems: [
@@ -37,36 +38,36 @@ const UIManager = {
         const currentPath = window.location.pathname.split('/').pop() || 'dashboard.html'
 
         const sidebarHtml = `
-            <aside id="sidebar" class="sidebar flex flex-col h-screen fixed lg:static bg-white z-50 scroll-touch">
-                <div class="p-4 lg:p-6 border-b">
+            <aside id="sidebar" class="sidebar flex flex-col h-screen fixed lg:static bg-[#12121A] z-50 scroll-touch border-r border-[rgba(255,255,255,0.08)]">
+                <div class="p-4 lg:p-6 border-b border-[rgba(255,255,255,0.08)]">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 lg:w-10 lg:h-10 grad-primary rounded-xl flex items-center justify-center shadow-lg shadow-blue-200 flex-shrink-0">
-                            <svg class="w-5 h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div class="w-10 h-10 bg-[#F59E0B] rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.4)] flex-shrink-0">
+                            <svg class="w-5 h-5 lg:w-6 lg:h-6 text-[#0A0A0F]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
                         </div>
                         <div class="min-w-0">
-                            <h1 class="font-bold text-slate-900 tracking-tight text-sm lg:text-base truncate">Emerge Social</h1>
-                            <p class="text-[10px] uppercase tracking-widest font-bold text-slate-400">Finance Hub</p>
+                            <h1 class="font-bold text-[#FAFAFA] tracking-tight text-sm lg:text-base truncate font-display">Emerge Social</h1>
+                            <p class="text-[10px] uppercase tracking-widest font-bold text-[#71717A]">Finance Hub</p>
                         </div>
                     </div>
                 </div>
 
                 <nav class="flex-1 p-3 lg:p-4 space-y-1 overflow-y-auto scroll-touch">
                     ${this.menuItems.map(item => `
-                        <a href="${item.link}" class="flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl text-sm font-medium transition-all duration-200 ${currentPath === item.link ? 'bg-blue-50 text-blue-600 shadow-sm' : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}">
-                            <svg class="w-5 h-5 flex-shrink-0 ${currentPath === item.link ? 'text-blue-600' : 'text-slate-400'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="${item.icon}"></path>
+                        <a href="${item.link}" class="flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 rounded-xl text-sm font-medium transition-all duration-200 ${currentPath === item.link ? 'bg-[rgba(245,158,11,0.15)] text-[#F59E0B]' : 'text-[#A1A1AA] hover:bg-[rgba(255,255,255,0.05)] hover:text-[#FAFAFA]'}">
+                            <svg class="w-5 h-5 flex-shrink-0 ${currentPath === item.link ? 'text-[#F59E0B]' : 'text-[#71717A]'}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="${item.icon}"></path>
                             </svg>
                             <span class="truncate">${item.name}</span>
                         </a>
                     `).join('')}
                 </nav>
 
-                <div class="p-3 lg:p-4 border-t">
-                    <button onclick="AuthManager.signOut()" class="flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 text-sm font-medium text-red-500 hover:bg-red-50 rounded-xl transition-all w-full group">
-                        <svg class="w-5 h-5 text-red-400 group-hover:text-red-500 transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                <div class="p-3 lg:p-4 border-t border-[rgba(255,255,255,0.08)]">
+                    <button onclick="AuthManager.signOut()" class="flex items-center gap-3 px-3 lg:px-4 py-2.5 lg:py-3 text-sm font-medium text-[#EF4444] hover:bg-[rgba(239,68,68,0.1)] rounded-xl transition-all w-full group">
+                        <svg class="w-5 h-5 text-[#EF4444] group-hover:text-[#EF4444] transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
                         </svg>
                         <span class="truncate">Déconnexion</span>
                     </button>
@@ -76,20 +77,20 @@ const UIManager = {
         `;
 
         const headerHtml = `
-            <header class="bg-white/80 backdrop-blur-md sticky top-0 z-30 border-b border-slate-100">
+            <header class="bg-[rgba(18,18,26,0.8)] backdrop-blur-md sticky top-0 z-30 border-b border-[rgba(255,255,255,0.08)]">
                 <div class="px-3 sm:px-4 lg:px-8 py-3 sm:py-4 flex items-center justify-between">
                     <div class="flex items-center gap-3 sm:gap-4 min-w-0">
-                        <button id="mobile-menu-btn" class="lg:hidden p-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors flex-shrink-0" aria-label="Menu">
+                        <button id="mobile-menu-btn" class="lg:hidden p-2 text-[#A1A1AA] hover:bg-[rgba(255,255,255,0.05)] rounded-lg transition-colors flex-shrink-0">
                             <svg class="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path>
                             </svg>
                         </button>
-                        <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-slate-900 leading-none truncate">${pageTitle}</h2>
+                        <h2 class="text-lg sm:text-xl lg:text-2xl font-bold text-[#FAFAFA] leading-none truncate font-display">${pageTitle}</h2>
                     </div>
                     <div class="flex items-center gap-2 sm:gap-3 flex-shrink-0">
                         <div class="hidden sm:flex flex-col items-end">
-                            <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Aujourd'hui</span>
-                            <span class="text-sm font-bold text-slate-700">${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+                            <span class="text-xs font-semibold text-[#71717A] uppercase tracking-wider">Aujourd'hui</span>
+                            <span class="text-sm font-bold text-[#FAFAFA]">${new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
                         </div>
                     </div>
                 </div>
