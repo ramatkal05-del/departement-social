@@ -180,6 +180,7 @@
         function depensesData() {
             return {
                 depenses: [],
+                loading: false,
                 showModal: false,
                 editingId: null,
                 form: {
@@ -213,7 +214,9 @@
 
                 async init() {
                     AuthManager.checkAuth()
+                    this.loading = true
                     await this.loadDepenses()
+                    this.loading = false
                 },
 
                 async loadDepenses() {
