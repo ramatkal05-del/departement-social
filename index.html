@@ -21,9 +21,13 @@
                 radial-gradient(at 100% 0%, hsla(221,83%,93%,1) 0, transparent 50%),
                 radial-gradient(at 50% 100%, hsla(221,83%,93%,1) 0, transparent 50%);
         }
+        /* Override dark theme body color for the light login page */
+        body.login-page {
+            color: #0f172a; /* slate-900 */
+        }
     </style>
 </head>
-<body class="login-mesh min-h-screen flex items-center justify-center p-4">
+<body class="login-page login-mesh min-h-screen flex items-center justify-center p-4">
 
     <div x-data="{
         email: '',
@@ -133,4 +137,3 @@
     </script>
 </body>
 </html>
-

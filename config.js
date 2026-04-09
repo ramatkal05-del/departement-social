@@ -2,18 +2,18 @@
 // This file handles both browser and Vercel environments
 // API keys should be set via environment variables in production
 
-// Check for window-level globals (set by Vercel or inline in HTML)
+// Check for window-level globals (set inline or via injected env)
 const SUPABASE_URL = typeof window !== 'undefined' ? window.SUPABASE_URL : (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : '');
 const SUPABASE_ANON_KEY = typeof window !== 'undefined' ? window.SUPABASE_ANON_KEY : (typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : '');
 
 const SUPABASE_CONFIG = {
-  // For Vercel/Node.js environment - use env vars
+  // Prefer process env if bundled (rare for this static app), otherwise window globals
   url: typeof process !== 'undefined' && process.env.SUPABASE_URL 
     ? process.env.SUPABASE_URL 
     : SUPABASE_URL,
   
-  key: typeof process !== 'undefined' && process.env.SUPABASE_KEY
-    ? process.env.SUPABASE_KEY
+  key: typeof process !== 'undefined' && process.env.SUPABASE_ANON_KEY
+    ? process.env.SUPABASE_ANON_KEY
     : SUPABASE_ANON_KEY
 }
 
@@ -22,8 +22,7 @@ const isDevelopment = typeof window !== 'undefined' && !window.location.hostname
 
 if (isDevelopment && (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.key)) {
   console.warn('⚠️ Supabase configuration incomplete.')
-  console.warn('Please create a .env file with SUPABASE_URL and SUPABASE_ANON_KEY')
-  console.warn('Or add them as window variables in your HTML')
+  console.warn('Please provide SUPABASE_URL and SUPABASE_ANON_KEY (window globals or env at build time).')
 }
 
 // Export for use in supabase.js

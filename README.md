@@ -12,7 +12,7 @@ Système de gestion financière pour département d'église, entièrement en fra
 2. Connectez-vous avec GitHub
 3. Configurez les variables d'environnement :
    - `SUPABASE_URL` : Votre URL Supabase
-   - `SUPABASE_KEY` : Votre clé anon Supabase
+   - `SUPABASE_ANON_KEY` : Votre clé anon Supabase
 4. Cliquez sur "Deploy"
 
 📖 Voir le [Guide de Déploiement Complet](DEPLOYMENT.md)
@@ -182,7 +182,7 @@ Créez un fichier `.env` à la racine :
 
 ```env
 SUPABASE_URL=https://votre-projet.supabase.co
-SUPABASE_KEY=votre-clé-anon-ici
+SUPABASE_ANON_KEY=votre-clé-anon-ici
 ```
 
 **⚠️ Important :** Ne jamais commiter le fichier `.env` !

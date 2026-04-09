@@ -26,8 +26,8 @@
    - Allez dans Settings > Environment Variables
    - Ajoutez :
      ```
-     SUPABASE_URL = https://mhsmivrkptlusphwoote.supabase.co
-     SUPABASE_KEY = votre-clé-anon-ici
+     SUPABASE_URL = https://votre-projet.supabase.co
+     SUPABASE_ANON_KEY = votre-clé-anon-ici
      ```
 
 4. **Déployer**
@@ -69,7 +69,7 @@ vercel --prod
 
 4. **Variables d'environnement**
    - Settings > Environment variables
-   - Ajouter `SUPABASE_URL` et `SUPABASE_KEY`
+   - Ajouter `SUPABASE_URL` et `SUPABASE_ANON_KEY`
 
 5. **Déployer**
    - "Deploy site"
@@ -190,7 +190,7 @@ cp .env.example .env
 2. Remplissez vos valeurs dans `.env` :
 ```env
 SUPABASE_URL=https://votre-projet.supabase.co
-SUPABASE_KEY=votre-clé-anon-ici
+SUPABASE_ANON_KEY=votre-clé-anon-ici
 ```
 
 ### Pour Vercel
@@ -198,7 +198,7 @@ SUPABASE_KEY=votre-clé-anon-ici
 ```bash
 # Via CLI
 vercel env add SUPABASE_URL
-vercel env add SUPABASE_KEY
+vercel env add SUPABASE_ANON_KEY
 
 # Ou via le dashboard Vercel
 # Settings > Environment Variables
@@ -209,7 +209,7 @@ vercel env add SUPABASE_KEY
 ```bash
 # Via CLI
 netlify env:set SUPABASE_URL "votre-url"
-netlify env:set SUPABASE_KEY "votre-clé"
+netlify env:set SUPABASE_ANON_KEY "votre-clé"
 
 # Ou via le dashboard Netlify
 # Settings > Environment variables

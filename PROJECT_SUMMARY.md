@@ -64,7 +64,7 @@ netlify deploy --prod
 ### À faire lors du déploiement
 - [ ] Configurer les variables d'environnement sur Vercel/Netlify
   - `SUPABASE_URL`
-  - `SUPABASE_KEY`
+  - `SUPABASE_ANON_KEY`
 - [ ] Tester la connexion
 - [ ] Tester l'export PDF
 - [ ] Vérifier le responsive design
