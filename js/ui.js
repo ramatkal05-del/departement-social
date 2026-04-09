@@ -13,16 +13,28 @@ const UIManager = {
         { name: 'Rapports', icon: 'M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z', link: 'rapports.html' }
     ],
 
+    initialized: false,
+
     init(currentPageTitle) {
-        this.renderLayout(currentPageTitle);
-        this.initMobileMenu();
+        // Ensure DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.renderLayout(currentPageTitle))
+            document.addEventListener('DOMContentLoaded', () => this.initMobileMenu())
+        } else {
+            this.renderLayout(currentPageTitle)
+            this.initMobileMenu()
+        }
+        this.initialized = true
     },
 
     renderLayout(pageTitle) {
-        const layout = document.getElementById('app-layout');
-        if (!layout) return;
+        const layout = document.getElementById('app-layout')
+        if (!layout) {
+            console.warn('app-layout element not found')
+            return
+        }
 
-        const currentPath = window.location.pathname.split('/').pop() || 'dashboard.html';
+        const currentPath = window.location.pathname.split('/').pop() || 'dashboard.html'
 
         const sidebarHtml = `
             <aside id="sidebar" class="sidebar flex flex-col h-screen fixed lg:static bg-white z-50 scroll-touch">
@@ -85,63 +97,75 @@ const UIManager = {
         `;
 
         // Inject Sidebar
-        const mainContent = document.createElement('main');
-        mainContent.className = 'main-content';
-        mainContent.innerHTML = headerHtml + '<div id="page-content" class="p-3 sm:p-4 lg:p-8 animate-fade-in"></div>';
+        const mainContent = document.createElement('main')
+        mainContent.className = 'main-content'
+        mainContent.innerHTML = headerHtml + '<div id="page-content" class="p-3 sm:p-4 lg:p-8 animate-fade-in"></div>'
         
-        layout.innerHTML = sidebarHtml;
-        layout.appendChild(mainContent);
+        layout.innerHTML = sidebarHtml
+        layout.appendChild(mainContent)
 
         // Move existing content if any
-        const existingContent = document.getElementById('content-to-move');
+        const existingContent = document.getElementById('content-to-move')
         if (existingContent) {
-            document.getElementById('page-content').appendChild(existingContent);
+            const pageContent = document.getElementById('page-content')
+            if (pageContent) {
+                pageContent.appendChild(existingContent)
+            }
         }
     },
 
     initMobileMenu() {
-        const btn = document.getElementById('mobile-menu-btn');
-        const sidebar = document.getElementById('sidebar');
-        const overlay = document.getElementById('sidebar-overlay');
+        const btn = document.getElementById('mobile-menu-btn')
+        const sidebar = document.getElementById('sidebar')
+        const overlay = document.getElementById('sidebar-overlay')
 
-        if (!btn || !sidebar || !overlay) return;
+        if (!btn || !sidebar || !overlay) {
+            // Elements not ready yet, retry after a short delay
+            setTimeout(() => this.initMobileMenu(), 100)
+            return
+        }
 
         const openSidebar = () => {
-            sidebar.classList.add('open');
-            overlay.classList.add('active');
-            document.body.classList.add('overflow-hidden');
-        };
+            sidebar.classList.add('open')
+            overlay.classList.add('active')
+            document.body.classList.add('overflow-hidden')
+        }
 
         const closeSidebar = () => {
-            sidebar.classList.remove('open');
-            overlay.classList.remove('active');
-            document.body.classList.remove('overflow-hidden');
-        };
+            sidebar.classList.remove('open')
+            overlay.classList.remove('active')
+            document.body.classList.remove('overflow-hidden')
+        }
 
-        btn.addEventListener('click', openSidebar);
-        overlay.addEventListener('click', closeSidebar);
+        btn.addEventListener('click', openSidebar)
+        overlay.addEventListener('click', closeSidebar)
         
         // Close sidebar when clicking on a link (mobile)
         sidebar.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 if (window.innerWidth < 1024) {
-                    closeSidebar();
+                    closeSidebar()
                 }
-            });
-        });
+            })
+        })
 
         // Close on escape key
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape' && sidebar.classList.contains('open')) {
-                closeSidebar();
+                closeSidebar()
             }
-        });
+        })
         
         // Handle resize
         window.addEventListener('resize', () => {
             if (window.innerWidth >= 1024) {
-                closeSidebar();
+                closeSidebar()
             }
-        });
+        })
     }
-};
+}
+
+// Auto-init when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    // UIManager will be initialized by each page
+})

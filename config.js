@@ -1,15 +1,21 @@
 // Configuration loader for different environments
 // This file handles both browser and Vercel environments
+// API keys should be set via environment variables in production
 
 const SUPABASE_CONFIG = {
-  // For Vercel/Node.js environment
+  // For Vercel/Node.js environment - use env vars
   url: typeof process !== 'undefined' && process.env.SUPABASE_URL 
     ? process.env.SUPABASE_URL 
-    : 'https://mhsmivrkptlusphwoote.supabase.co',
+    : (typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : ''),
   
   key: typeof process !== 'undefined' && process.env.SUPABASE_KEY
     ? process.env.SUPABASE_KEY
-    : 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oc21pdnJrcHRsdXNwaHdvb3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NzIxODMsImV4cCI6MjA5MTA0ODE4M30.L73H4EEmsVZ5mGlvxmp_2su-NoqspUusoWqCQcdbwK0'
+    : (typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : '')
+}
+
+// Validate configuration
+if (!SUPABASE_CONFIG.url || !SUPABASE_CONFIG.key) {
+  console.warn('⚠️ Supabase configuration incomplete. Please set SUPABASE_URL and SUPABASE_ANON_KEY in your .env file or environment.')
 }
 
 // Export for use in supabase.js

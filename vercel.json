@@ -7,15 +7,15 @@
       "use": "@vercel/static"
     },
     {
-      "src": "*.js",
-      "use": "@vercel/static"
-    },
-    {
       "src": "js/*.js",
       "use": "@vercel/static"
     },
     {
       "src": "css/*.css",
+      "use": "@vercel/static"
+    },
+    {
+      "src": "config.js",
       "use": "@vercel/static"
     }
   ],
@@ -34,5 +34,6 @@
     }
   ],
   "cleanUrls": false,
-  "trailingSlash": false
+  "trailingSlash": false,
+  "framework": null
 }

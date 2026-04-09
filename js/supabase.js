@@ -10,13 +10,20 @@ function initSupabase() {
     return null
   }
 
-  // Get configuration from SUPABASE_CONFIG or use defaults
-  const config = typeof SUPABASE_CONFIG !== 'undefined' 
-    ? SUPABASE_CONFIG 
-    : {
-        url: 'https://mhsmivrkptlusphwoote.supabase.co',
-        key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im1oc21pdnJrcHRsdXNwaHdvb3RlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0NzIxODMsImV4cCI6MjA5MTA0ODE4M30.L73H4EEmsVZ5mGlvxmp_2su-NoqspUusoWqCQcdbwK0'
-      }
+  // Get configuration from SUPABASE_CONFIG
+  const config = typeof SUPABASE_CONFIG !== 'undefined' ? SUPABASE_CONFIG : null
+  
+  // Validate configuration - fail if not properly configured
+  if (!config || !config.url || !config.key) {
+    console.error('Supabase configuration is incomplete. Please set SUPABASE_URL and SUPABASE_ANON_KEY in your config.js or environment.')
+    return null
+  }
+
+  // Check URL format
+  if (!config.url.startsWith('https://')) {
+    console.error('Supabase URL must start with https://')
+    return null
+  }
   
   supabaseClient = supabase.createClient(config.url, config.key)
   return supabaseClient
